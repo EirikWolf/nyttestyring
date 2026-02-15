@@ -384,7 +384,7 @@
 
 # 
 
-# Intern bruk – Hemit HF / Helse Midt-Norge
+# Intern bruk
 
 
 
