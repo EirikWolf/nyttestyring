@@ -76,15 +76,6 @@ jobs:
           name: dist
           path: dist/
 
-      # Deploy Firestore-regler og indekser
-      - name: Deploy Firestore rules & indexes
-        uses: w9jds/firebase-action@master
-        with:
-          args: deploy --only firestore:rules,firestore:indexes
-        env:
-          GCP_SA_KEY: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
-          PROJECT_ID: ${{ secrets.VITE_FIREBASE_PROJECT_ID }}
-
       # Deploy Hosting
       - uses: FirebaseExtended/action-hosting-deploy@v0
         with:
