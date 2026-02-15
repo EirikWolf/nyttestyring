@@ -1,0 +1,68 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ── Hjelpefunksjoner ──────────────────────────────────
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function hasRole(role) {
+      return isAuthenticated()
+        && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == role;
+    }
+
+    function isForumOrAdmin() {
+      return hasRole('forum') || hasRole('admin');
+    }
+
+    function isTeamOrAbove() {
+      return hasRole('team') || isForumOrAdmin();
+    }
+
+    // ── Tasks (forbedringsforslag) ────────────────────────
+    match /tasks/{taskId} {
+      // Alle innloggede kan lese oppgaver
+      allow read: if isAuthenticated();
+
+      // Ansatte kan opprette nye forslag
+      allow create: if isAuthenticated();
+
+      // Team, forum og admin kan oppdatere
+      allow update: if isTeamOrAbove();
+
+      // Kun forum/admin kan slette
+      allow delete: if isForumOrAdmin();
+    }
+
+    // ── Team (kapasitet) ─────────────────────────────────
+    match /team/{memberId} {
+      allow read: if isAuthenticated();
+      allow write: if isTeamOrAbove();
+    }
+
+    // ── Goals (strategiske mål) ──────────────────────────
+    match /goals/{goalId} {
+      allow read: if isAuthenticated();
+      allow write: if isForumOrAdmin();
+    }
+
+    // ── Config (applikasjon) ─────────────────────────────
+    match /config/{docId} {
+      allow read: if isAuthenticated();
+      allow write: if hasRole('admin');
+    }
+
+    // ── Sprints (historikk) ──────────────────────────────
+    match /sprints/{sprintId} {
+      allow read: if isAuthenticated();
+      allow write: if isTeamOrAbove();
+    }
+
+    // ── Users (rolleinfo) ────────────────────────────────
+    match /users/{userId} {
+      allow read: if isAuthenticated();
+      allow write: if hasRole('admin');
+    }
+  }
+}
