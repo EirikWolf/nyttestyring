@@ -1,0 +1,876 @@
+<!DOCTYPE html>
+<html lang="nb">
+<head>
+<meta charset="UTF-8">
+<title>Brukerveiledning – Hemit Nyttestyringsverktøy v6.3</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;600;700;800&display=swap');
+
+  :root {
+    --primary: #003087;
+    --primary-light: #6CACE4;
+    --primary-dark: #001A4E;
+    --accent: #0072CE;
+    --bg: #F5F7FA;
+    --surface: #FFFFFF;
+    --surface-alt: #EBF0F7;
+    --border: #D0D9E4;
+    --text: #1A1A2E;
+    --text-sec: #4A5568;
+    --text-muted: #8896A6;
+    --success: #2D8A4E;
+    --success-bg: #E6F5EC;
+    --warning: #C67A1A;
+    --warning-bg: #FFF3E0;
+    --danger: #C53030;
+    --danger-bg: #FEE2E2;
+    --purple: #7C3AED;
+    --purple-bg: #EDE9FE;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    font-family: 'Source Sans 3', 'Segoe UI', system-ui, sans-serif;
+    font-size: 11pt;
+    line-height: 1.6;
+    color: var(--text);
+    background: var(--bg);
+    margin: 0;
+    padding: 0;
+  }
+
+  .page {
+    max-width: 800px;
+    margin: 0 auto;
+    background: var(--surface);
+    padding: 50px 60px;
+    box-shadow: 0 2px 20px rgba(0,0,0,0.06);
+  }
+
+  /* ── Forside ── */
+  .cover {
+    text-align: center;
+    padding: 80px 20px 60px;
+    border-bottom: 4px solid var(--primary);
+    margin-bottom: 40px;
+  }
+  .cover-logo {
+    font-size: 42pt;
+    font-weight: 800;
+    color: var(--primary);
+    letter-spacing: -1px;
+    margin: 0 0 6px;
+  }
+  .cover-sub {
+    font-size: 16pt;
+    color: var(--primary-light);
+    font-weight: 600;
+    margin: 0 0 30px;
+  }
+  .cover-title {
+    font-size: 22pt;
+    font-weight: 700;
+    color: var(--text);
+    margin: 0 0 8px;
+  }
+  .cover-version {
+    font-size: 11pt;
+    color: var(--text-muted);
+    margin: 0;
+  }
+
+  /* ── Overskrifter ── */
+  h1 {
+    font-size: 20pt;
+    font-weight: 800;
+    color: var(--primary);
+    margin: 50px 0 12px;
+    padding-bottom: 8px;
+    border-bottom: 3px solid var(--primary-light);
+    page-break-before: always;
+  }
+  h1:first-of-type { page-break-before: auto; }
+
+  h2 {
+    font-size: 14pt;
+    font-weight: 700;
+    color: var(--primary);
+    margin: 30px 0 8px;
+    padding-bottom: 4px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  h3 {
+    font-size: 12pt;
+    font-weight: 700;
+    color: var(--primary-dark);
+    margin: 22px 0 6px;
+  }
+
+  /* ── Brødtekst ── */
+  p { margin: 0 0 10px; }
+
+  /* ── Tabeller ── */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 12px 0 18px;
+    font-size: 10.5pt;
+  }
+  thead th {
+    background: var(--primary);
+    color: #fff;
+    font-weight: 700;
+    text-align: left;
+    padding: 8px 12px;
+    font-size: 10pt;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  tbody td {
+    padding: 7px 12px;
+    border-bottom: 1px solid var(--border);
+    vertical-align: top;
+  }
+  tbody tr:nth-child(even) { background: var(--surface-alt); }
+  tbody tr:hover { background: #E0ECFA; }
+
+  /* ── Infobokser ── */
+  .info-box {
+    padding: 14px 18px;
+    border-radius: 8px;
+    margin: 14px 0 18px;
+    font-size: 10.5pt;
+    line-height: 1.5;
+  }
+  .info-box.blue {
+    background: var(--surface-alt);
+    border-left: 4px solid var(--primary-light);
+    color: var(--text);
+  }
+  .info-box.green {
+    background: var(--success-bg);
+    border-left: 4px solid var(--success);
+  }
+  .info-box.orange {
+    background: var(--warning-bg);
+    border-left: 4px solid var(--warning);
+  }
+  .info-box.red {
+    background: var(--danger-bg);
+    border-left: 4px solid var(--danger);
+  }
+  .info-box.purple {
+    background: var(--purple-bg);
+    border-left: 4px solid var(--purple);
+  }
+  .info-box strong { color: var(--primary-dark); }
+
+  /* ── Rollebadger ── */
+  .role-badge {
+    display: inline-block;
+    padding: 3px 12px;
+    border-radius: 20px;
+    font-size: 9.5pt;
+    font-weight: 700;
+    margin-right: 6px;
+  }
+  .role-badge.medarbeider { background: var(--surface-alt); color: var(--text-sec); border: 1px solid var(--border); }
+  .role-badge.forum { background: var(--purple-bg); color: var(--purple); }
+  .role-badge.team { background: #E0F0FF; color: var(--accent); }
+  .role-badge.admin { background: var(--danger-bg); color: var(--danger); }
+
+  /* ── Statusbadger ── */
+  .status {
+    display: inline-block;
+    padding: 2px 10px;
+    border-radius: 12px;
+    font-size: 9pt;
+    font-weight: 700;
+  }
+  .status.innmeldt { background: #F0F0F0; color: #8896A6; }
+  .status.vurdering { background: #EDE9FE; color: #7C3AED; }
+  .status.vurdert { background: #E0F7FA; color: #0891B2; }
+  .status.klar { background: #E6F5EC; color: #2D8A4E; }
+  .status.pagar { background: #E0F0FF; color: #0072CE; }
+  .status.blokkert { background: #FEE2E2; color: #C53030; }
+  .status.ferdig { background: #F3F4F6; color: #6B7280; }
+  .status.avvist { background: #FEE2E2; color: #991B1B; }
+  .status.arkivert { background: #F3F4F6; color: #9CA3AF; }
+
+  /* ── Løypebadger ── */
+  .track {
+    display: inline-block;
+    padding: 2px 10px;
+    border-radius: 12px;
+    font-size: 9pt;
+    font-weight: 700;
+    margin-right: 4px;
+  }
+  .track.rpa { background: #E0F0FF; color: #0072CE; }
+  .track.integration { background: #E8F4FC; color: #6CACE4; }
+  .track.sysdev { background: #E0E8F5; color: #003087; }
+  .track.lowcode { background: #E6F5EC; color: #2D8A4E; }
+  .track.cots { background: #FFF3E0; color: #C67A1A; }
+
+  /* ── Flytdiagram ── */
+  .flow {
+    background: var(--surface-alt);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 20px 24px;
+    margin: 14px 0 18px;
+    font-family: 'Consolas', 'Courier New', monospace;
+    font-size: 10pt;
+    line-height: 1.8;
+    color: var(--primary-dark);
+    white-space: pre;
+  }
+
+  /* ── Lister ── */
+  ul, ol { margin: 6px 0 14px; padding-left: 24px; }
+  li { margin-bottom: 4px; }
+
+  /* ── Kolonner ── */
+  .cols {
+    display: flex;
+    gap: 16px;
+    margin: 12px 0 18px;
+  }
+  .col {
+    flex: 1;
+    background: var(--surface-alt);
+    border-radius: 8px;
+    padding: 14px 16px;
+    border-top: 3px solid var(--primary);
+  }
+  .col h4 {
+    font-size: 10pt;
+    font-weight: 700;
+    color: var(--primary);
+    margin: 0 0 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .col .val {
+    font-size: 20pt;
+    font-weight: 800;
+    color: var(--primary);
+  }
+
+  /* ── Kanban-illustrasjon ── */
+  .kanban {
+    display: flex;
+    gap: 8px;
+    margin: 14px 0 18px;
+  }
+  .kanban-col {
+    flex: 1;
+    background: var(--surface-alt);
+    border-radius: 8px;
+    padding: 10px;
+    text-align: center;
+    border-top: 3px solid var(--border);
+  }
+  .kanban-col.klar { border-top-color: var(--success); }
+  .kanban-col.pagar { border-top-color: var(--accent); }
+  .kanban-col.blokkert { border-top-color: var(--danger); }
+  .kanban-col.ferdig { border-top-color: #6B7280; }
+  .kanban-col strong { font-size: 10pt; color: var(--primary-dark); }
+  .kanban-col p { font-size: 9pt; color: var(--text-muted); margin: 4px 0 0; }
+
+  /* ── Formelbox ── */
+  .formula {
+    background: var(--primary);
+    color: #fff;
+    padding: 14px 20px;
+    border-radius: 8px;
+    font-family: 'Consolas', 'Courier New', monospace;
+    font-size: 11pt;
+    font-weight: 600;
+    text-align: center;
+    margin: 14px 0 18px;
+    letter-spacing: 0.3px;
+  }
+
+  /* ── Hurtigreferanse ── */
+  .quick-ref td:first-child {
+    font-weight: 600;
+    color: var(--primary-dark);
+    white-space: nowrap;
+  }
+
+  /* ── Footer ── */
+  .footer {
+    text-align: center;
+    padding: 30px 0 10px;
+    margin-top: 40px;
+    border-top: 2px solid var(--border);
+    font-size: 9pt;
+    color: var(--text-muted);
+  }
+
+  /* ── Print ── */
+  @media print {
+    body { background: #fff; }
+    .page { box-shadow: none; padding: 20px 40px; }
+    h1 { page-break-before: always; }
+    h1:first-of-type { page-break-before: auto; }
+    .kanban, .cols { break-inside: avoid; }
+    table { break-inside: avoid; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+<!-- ════════ FORSIDE ════════ -->
+<div class="cover">
+  <p class="cover-logo">Hemit</p>
+  <p class="cover-sub">Nyttestyringsverktøy</p>
+  <p class="cover-title">Brukerveiledning</p>
+  <p class="cover-version">Versjon 6.3 &middot; Februar 2026</p>
+</div>
+
+<!-- ════════ INNHOLDSFORTEGNELSE ════════ -->
+<h2 style="border-bottom: 2px solid var(--primary); margin-top: 0;">Innhold</h2>
+<table style="border: none;">
+<tbody>
+<tr><td style="border: none; padding: 4px 12px;"><strong>1.</strong> Hva er Nyttestyringsverktøyet?</td></tr>
+<tr><td style="border: none; padding: 4px 12px;"><strong>2.</strong> Roller og tilgang</td></tr>
+<tr><td style="border: none; padding: 4px 12px;"><strong>3.</strong> Medarbeider – Meld forslag og mine forslag</td></tr>
+<tr><td style="border: none; padding: 4px 12px;"><strong>4.</strong> Utviklingsforum – Vurdere, prioritere og styre</td></tr>
+<tr><td style="border: none; padding: 4px 12px;"><strong>5.</strong> Leveranseteam – Sprint, kapasitet og dashboard</td></tr>
+<tr><td style="border: none; padding: 4px 12px;"><strong>6.</strong> Administrator – Konfigurasjon og integrasjoner</td></tr>
+<tr><td style="border: none; padding: 4px 12px;"><strong>7.</strong> Scoring-systemet</td></tr>
+<tr><td style="border: none; padding: 4px 12px;"><strong>8.</strong> Oppgavens livssyklus</td></tr>
+<tr><td style="border: none; padding: 4px 12px;"><strong>9.</strong> Deloppgaver</td></tr>
+<tr><td style="border: none; padding: 4px 12px;"><strong>10.</strong> Navigasjon, tema og varsler</td></tr>
+<tr><td style="border: none; padding: 4px 12px;"><strong>11.</strong> Hurtigreferanse</td></tr>
+</tbody>
+</table>
+
+<!-- ════════ 1. INNLEDNING ════════ -->
+<h1>1. Hva er Nyttestyringsverktøyet?</h1>
+
+<p>Nyttestyringsverktøyet hjelper Hemit HF med å ta imot, vurdere og prioritere forbedringsforslag fra hele organisasjonen. Verktøyet sikrer at de viktigste forslagene blir prioritert først gjennom anerkjente scoringsmodeller.</p>
+
+<div class="info-box blue">
+  <strong>Hvem er det for?</strong><br>
+  Alle ansatte kan melde inn forslag. Utviklingsforum vurderer og scorer dem. Leveranseteamet planlegger og utfører arbeidet. Administrator konfigurerer systemet.
+</div>
+
+<h2>Slik fungerer det</h2>
+<ol>
+  <li><strong>Medarbeider</strong> melder inn et forbedringsforslag</li>
+  <li><strong>Utviklingsforum</strong> vurderer, scorer og prioriterer forslaget</li>
+  <li><strong>Leveranseteam</strong> planlegger arbeidet i en sprint og gjennomfører</li>
+  <li><strong>Dashboard</strong> gir oversikt over fremdrift og måloppnåelse</li>
+</ol>
+
+<!-- ════════ 2. ROLLER ════════ -->
+<h1>2. Roller og tilgang</h1>
+
+<p>Verktøyet har fire roller. Hvilken rolle du har bestemmer hvilke faner og funksjoner du ser.</p>
+
+<table>
+<thead><tr><th>Rolle</th><th>Hvem</th><th>Faner</th><th>Hovedoppgaver</th></tr></thead>
+<tbody>
+<tr>
+  <td><span class="role-badge medarbeider">Medarbeider</span></td>
+  <td>Alle ansatte</td>
+  <td>Meld forslag, Mine</td>
+  <td>Sende inn forbedringsforslag, følge egne forslag</td>
+</tr>
+<tr>
+  <td><span class="role-badge forum">Utviklingsforum</span></td>
+  <td>Vurderingsgruppen</td>
+  <td>Innkomne, Alle, Backlog, Mål</td>
+  <td>Vurdere og score forslag, koble til strategiske mål</td>
+</tr>
+<tr>
+  <td><span class="role-badge team">Leveranseteam</span></td>
+  <td>Utviklingsteamet</td>
+  <td>Backlog, Sprint, Kapasitet, Dashboard</td>
+  <td>Planlegge sprinter, utføre arbeid, registrere timer</td>
+</tr>
+<tr>
+  <td><span class="role-badge admin">Administrator</span></td>
+  <td>Systemansvarlig</td>
+  <td>Konfig, Mål</td>
+  <td>Konfigurere system, opprette integrasjoner</td>
+</tr>
+</tbody>
+</table>
+
+<div class="info-box blue">
+  <strong>Bytte rolle:</strong> Når tilgangsstyring ikke er aktivert, kan du bytte rolle med knappene i topplinjen. Når tilgangsstyring er aktivert, bestemmes rollen av Azure AD-gruppen din.
+</div>
+
+<!-- ════════ 3. MEDARBEIDER ════════ -->
+<h1>3. Medarbeider</h1>
+
+<h2>3.1 Meld forslag</h2>
+
+<p>Her sender du inn forbedringsforslag til Utviklingsforum.</p>
+
+<h3>Grunndata</h3>
+
+<table>
+<thead><tr><th>Felt</th><th>Beskrivelse</th><th>Obligatorisk</th></tr></thead>
+<tbody>
+<tr><td><strong>Tittel</strong></td><td>Kort beskrivelse av forslaget</td><td>Ja</td></tr>
+<tr><td><strong>Problembeskrivelse</strong></td><td>Hva er utfordringen? Beskriv nåsituasjonen</td><td>Nei</td></tr>
+<tr><td><strong>Ditt navn</strong></td><td>Fornavn og etternavn</td><td>Ja</td></tr>
+<tr><td><strong>Avdeling</strong></td><td>Hvilken avdeling du tilhører</td><td>Nei</td></tr>
+<tr><td><strong>Prosess-/systemeier</strong></td><td>Hvem eier prosessen eller systemet?</td><td>Nei</td></tr>
+<tr><td><strong>Prioritet</strong></td><td>Lav / Medium / Høy / Kritisk</td><td>Nei</td></tr>
+<tr><td><strong>EQS-referanse</strong></td><td>Referanse til prosedyre i kvalitetssystemet</td><td>Nei</td></tr>
+<tr><td><strong>Persondata</strong></td><td>Innebærer forslaget behandling av personopplysninger?</td><td>Nei</td></tr>
+</tbody>
+</table>
+
+<h3>Duplikatsjekk</h3>
+<p>Mens du skriver tittelen, sjekker systemet automatisk om lignende forslag allerede finnes. Hvis det finnes treff, vises de som en advarsel.</p>
+
+<h3>DPIA-varsel</h3>
+<div class="info-box red">
+  <strong>Persondata = Ja?</strong> Da vises en advarsel om at det kreves en personvernvurdering (DPIA) i henhold til GDPR artikkel 35. Du får lenke til DPIA-malen og referanse til gjeldende prosedyre.
+</div>
+
+<h3>Strategiske mål</h3>
+<p>Koble forslaget til ett eller flere strategiske mål ved å klikke på dem. Valgte mål vises med hake.</p>
+
+<h3>Vedlegg</h3>
+<p>Klikk i vedleggsfeltet for å legge til filer. Vedlagte filer vises som merkelapper som kan fjernes.</p>
+
+<h3>Egenvurdering (WSJF)</h3>
+<p>Du kan gi en foreløpig vurdering av forslaget langs seks dimensjoner (skala 1–5):</p>
+
+<table>
+<thead><tr><th>Dimensjon</th><th>Hva vurderer du?</th></tr></thead>
+<tbody>
+<tr><td><strong>Forretningsverdi</strong></td><td>Hvor stor nytte gir dette for organisasjonen?</td></tr>
+<tr><td><strong>Hastegrad</strong></td><td>Hvor tidskritisk er det?</td></tr>
+<tr><td><strong>Risiko ved utsettelse</strong></td><td>Hva er risikoen ved å vente?</td></tr>
+<tr><td><strong>Gjennomførbarhet</strong></td><td>Er det teknisk og organisatorisk realistisk?</td></tr>
+<tr><td><strong>Avhengigheter</strong></td><td>Hvor mange andre ting avhenger av dette?</td></tr>
+<tr><td><strong>Innsats (invertert)</strong></td><td>Hvor mye arbeid kreves? (lavere = bedre)</td></tr>
+</tbody>
+</table>
+
+<p>Poengsummen beregnes automatisk og vises til høyre i skjemaet.</p>
+
+<div class="info-box green">
+  <strong>Etter innsending:</strong> Klikk «Send inn forslag». Forslaget sendes til Utviklingsforum for vurdering. Du får en bekreftelse, og skjemaet tømmes.
+</div>
+
+<h2>3.2 Mine forslag</h2>
+<p>Her ser du en oversikt over dine egne innsendte forslag med tittel, dato, avdeling og status.</p>
+
+<!-- ════════ 4. UTVIKLINGSFORUM ════════ -->
+<h1>4. Utviklingsforum</h1>
+
+<h2>4.1 Innkomne</h2>
+
+<p>Viser alle forslag som venter på vurdering. Antallet vises som et rødt tall på fanen.</p>
+
+<p>For hvert forslag ser du tittel, prioritet, beskrivelse, innsender, prosesseier og dato. Merkelapper viser EQS-referanse og persondata-status.</p>
+
+<table>
+<thead><tr><th>Handling</th><th>Beskrivelse</th></tr></thead>
+<tbody>
+<tr><td><strong>Vurder &rarr;</strong></td><td>Åpner vurderingsvinduet med full scoring</td></tr>
+<tr><td><strong>Slett</strong></td><td>Fjerner forslaget permanent (krever bekreftelse)</td></tr>
+</tbody>
+</table>
+
+<h2>4.2 Vurdere et forslag</h2>
+
+<p>Vurderingsvinduet er verktøyets kjerne. Her gjennomgår og scorer du forslaget.</p>
+
+<h3>Steg 1: Les grunndata</h3>
+<p>Øverst ser du all informasjon fra innsenderen: tittel, beskrivelse, innsender, prosesseier, dato, EQS-referanse og eventuelle DPIA-varsler.</p>
+
+<h3>Steg 2: Juster WSJF-scoring</h3>
+<p>Bruk glidebryterne (1–5) for å vurdere de seks WSJF-dimensjonene. Poengsummen oppdateres i sanntid.</p>
+
+<h3>Steg 3: Velg løype(r)</h3>
+<p>Klikk på løypene som er relevante for forslaget:</p>
+
+<table>
+<thead><tr><th>Løype</th><th>Ikon</th><th>Beskrivelse</th></tr></thead>
+<tbody>
+<tr><td><span class="track rpa">RPA</span></td><td>&#9881;&#65039;</td><td>Robotisert prosessautomatisering</td></tr>
+<tr><td><span class="track integration">Integrasjon</span></td><td>&#128279;</td><td>Integrasjon mellom systemer</td></tr>
+<tr><td><span class="track sysdev">Systemutvikling</span></td><td>&#128187;</td><td>Utvikling av nye løsninger</td></tr>
+<tr><td><span class="track lowcode">No code / Low code</span></td><td>&#129513;</td><td>Løsninger med lite programmering</td></tr>
+<tr><td><span class="track cots">Hyllevare</span></td><td>&#128230;</td><td>Kjøp av ferdig programvare</td></tr>
+</tbody>
+</table>
+
+<p>Når du velger en løype, dukker det opp ekstra vurderingsdimensjoner tilpasset den løypen (se seksjon 7).</p>
+
+<h3>Steg 4: Sett prioritet og status</h3>
+<p>Velg prioritetsnivå og oppdater status (f.eks. «Vurdert» eller «Klar for sprint»).</p>
+
+<h3>Steg 5: Legg til kommentar</h3>
+<p>Skriv en begrunnelse eller merknad. Denne legges til forslagets kommentarfelt og blir synlig for alle.</p>
+
+<h3>Steg 6: Godkjenn</h3>
+<p>Klikk «Godkjenn» for å lagre vurderingen. Forslaget markeres som vurdert og flyttes ut av innboksen.</p>
+
+<h2>4.3 Alle</h2>
+
+<p>Viser alle oppgaver i en tabell med filtrering, sortering og batch-operasjoner.</p>
+
+<h3>Verktøylinje</h3>
+<table>
+<thead><tr><th>Funksjon</th><th>Beskrivelse</th></tr></thead>
+<tbody>
+<tr><td><strong>Søk</strong></td><td>Fritekst i tittel, beskrivelse, innsender og prosesseier</td></tr>
+<tr><td><strong>Filtrer etter løype</strong></td><td>Vis bare oppgaver i en bestemt løype</td></tr>
+<tr><td><strong>Filtrer etter status</strong></td><td>Vis bare en bestemt status</td></tr>
+<tr><td><strong>Sorter</strong></td><td>Etter score (standard), prioritet eller dato</td></tr>
+<tr><td><strong>Vis arkiverte</strong></td><td>Slå av/på visning av arkiverte oppgaver</td></tr>
+</tbody>
+</table>
+
+<h3>Utvid en rad</h3>
+<p>Klikk på en rad for å se beskrivelse, kommentarer, endringshistorikk og handlinger som sprint-tilordning og arkivering.</p>
+
+<h3>Batch-operasjoner</h3>
+<p>Velg flere oppgaver med avkrysningsboksene, og endre status, legg til sprint eller arkiver alle samtidig.</p>
+
+<h2>4.4 Mål</h2>
+
+<p>Her oppretter og administrerer du strategiske mål.</p>
+
+<ul>
+  <li><strong>Hovedmål</strong> – Overordnede strategiske mål</li>
+  <li><strong>Delmål</strong> – Bidrar til et hovedmål, vises med &laquo;&#8627;&raquo; innrykk</li>
+</ul>
+
+<p>For hvert mål vises antall tilknyttede oppgaver og en fremdriftsindikator som viser hvor mange som er ferdige.</p>
+
+<!-- ════════ 5. LEVERANSETEAM ════════ -->
+<h1>5. Leveranseteam</h1>
+
+<h2>5.1 Backlog</h2>
+
+<p>Identisk med forumets «Alle»-fane, men med en viktig forskjell: teamet kan redigere <strong>story points</strong> direkte i tabellen.</p>
+
+<table>
+<thead><tr><th>Story Points</th><th>Omfang</th></tr></thead>
+<tbody>
+<tr><td><strong>1</strong></td><td>Triviell (timer)</td></tr>
+<tr><td><strong>2</strong></td><td>Enkel (halv dag)</td></tr>
+<tr><td><strong>3</strong></td><td>Overkommelig (1 dag)</td></tr>
+<tr><td><strong>5</strong></td><td>Middels (2–3 dager)</td></tr>
+<tr><td><strong>8</strong></td><td>Kompleks (1 uke)</td></tr>
+<tr><td><strong>13</strong></td><td>Svært kompleks (2 uker)</td></tr>
+<tr><td><strong>21</strong></td><td>Episk (full sprint+)</td></tr>
+</tbody>
+</table>
+
+<h2>5.2 Sprint</h2>
+
+<p>Kanban-tavle for gjeldende sprint. Øverst vises sprintens fremdrift og nøkkeltall.</p>
+
+<div class="cols">
+  <div class="col"><h4>Fremdrift</h4><span class="val">47%</span></div>
+  <div class="col"><h4>Story Points</h4><span class="val">20/42</span></div>
+  <div class="col"><h4>Kapasitet</h4><span class="val">279t</span></div>
+</div>
+
+<p><strong>Dra og slipp</strong> oppgavekort mellom kolonnene for å oppdatere status:</p>
+
+<div class="kanban">
+  <div class="kanban-col klar"><strong>Klar</strong><p>Klare til start</p></div>
+  <div class="kanban-col pagar"><strong>Pågår</strong><p>Under arbeid</p></div>
+  <div class="kanban-col blokkert"><strong>Blokkert</strong><p>Stoppet</p></div>
+  <div class="kanban-col ferdig"><strong>Ferdig</strong><p>Fullført</p></div>
+</div>
+
+<p>Hvert kort viser tittel, løype, story points, timer brukt og eventuell deloppgave-fremdrift. Klikk på et kort for å redigere detaljer.</p>
+
+<h2>5.3 Kapasitet</h2>
+
+<p>Her administreres teamets medlemmer. Legg til nye medlemmer med navn, stilling, løype og allokering i prosent.</p>
+
+<p>Hvert medlemskort viser initialer, navn, stilling, kompetanser og beregnet kapasitet i timer:</p>
+
+<div class="formula">
+  Timer = allokering% &times; 37,5 timer/uke &times; antall sprintuker
+</div>
+
+<p>Eksempel: 80 % allokering i en 2-ukers sprint = <strong>60 timer</strong>.</p>
+
+<h2>5.4 Dashboard</h2>
+
+<p>Visuell oversikt over teamets fremdrift.</p>
+
+<div class="cols">
+  <div class="col"><h4>Velocity</h4><span class="val">37 SP</span></div>
+  <div class="col"><h4>Sprint</h4><span class="val">47%</span></div>
+  <div class="col"><h4>Kapasitet</h4><span class="val">279t</span></div>
+  <div class="col"><h4>Aktive</h4><span class="val">14</span></div>
+</div>
+
+<p><strong>Per løype:</strong> Viser antall aktive oppgaver per løype med fremdriftslinje.</p>
+
+<p><strong>Velocity-diagram:</strong> Stolpediagram over de siste 6 sprintene som viser leverte story points.</p>
+
+<p><strong>Mål-fremgang:</strong> For hvert strategisk hovedmål vises fremdrift med prosent og fargeindikator.</p>
+
+<!-- ════════ 6. ADMINISTRATOR ════════ -->
+<h1>6. Administrator</h1>
+
+<h2>6.1 Konfigurasjon</h2>
+
+<h3>Sprint-innstillinger</h3>
+<p>Sprintnavn, startdato, sluttdato og varighet i uker. Brukes til kapasitetsberegning og sprint-tavlen.</p>
+
+<h3>E-postvarsling</h3>
+<table>
+<thead><tr><th>Innstilling</th><th>Beskrivelse</th></tr></thead>
+<tbody>
+<tr><td><strong>Aktiver</strong></td><td>Slå e-postvarsling av/på</td></tr>
+<tr><td><strong>Statusendring</strong></td><td>Send varsel når en oppgave endrer status</td></tr>
+<tr><td><strong>Vurdering</strong></td><td>Send varsel når en oppgave blir vurdert</td></tr>
+<tr><td><strong>Varsle prosesseier</strong></td><td>Send varsel til oppgavens prosesseier</td></tr>
+<tr><td><strong>Adresser</strong></td><td>Mottakeradresser, kommaseparert</td></tr>
+</tbody>
+</table>
+
+<h3>DPIA / Personvern</h3>
+<p>Lenke til DPIA-mal og EQS-referanse. Vises automatisk i skjemaet når et forslag innebærer persondata.</p>
+
+<h3>Scoringsvekter</h3>
+<p>Glidebryter som bestemmer fordelingen mellom WSJF-score og løypespesifikk score. Standard: 60 % WSJF / 40 % løypespesifikk.</p>
+
+<h3>Tilgangsstyring – Microsoft Entra ID</h3>
+<div class="info-box purple">
+  <strong>Når aktivert:</strong> Brukere må logge inn med organisasjonskontoen sin. Roller tildeles basert på Azure AD-grupper i stedet for manuell rolleveksler.
+</div>
+
+<table>
+<thead><tr><th>Innstilling</th><th>Beskrivelse</th></tr></thead>
+<tbody>
+<tr><td><strong>Tenant ID</strong></td><td>Katalog-ID fra Azure Portal</td></tr>
+<tr><td><strong>Client ID</strong></td><td>Applikasjons-ID fra Azure Portal</td></tr>
+<tr><td><strong>Tillatte domener</strong></td><td>Kun brukere med disse e-postdomenene kan logge inn</td></tr>
+<tr><td><strong>Krev MFA</strong></td><td>Multifaktor-autentisering</td></tr>
+<tr><td><strong>Auto-opprett brukere</strong></td><td>Opprett bruker automatisk ved første innlogging</td></tr>
+<tr><td><strong>Sesjonstid</strong></td><td>Hvor lenge en sesjon varer (15–1440 minutter)</td></tr>
+<tr><td><strong>Rollemapping</strong></td><td>Koble Azure AD-grupper til roller i verktøyet</td></tr>
+</tbody>
+</table>
+
+<h3>Azure DevOps-integrasjon</h3>
+<p>Synkroniser forbedringsforslag som work items i Azure DevOps. Konfigurer organisasjons-URL, PAT, work item-type, area/iteration path og statusmapping.</p>
+
+<h3>ServiceNow-integrasjon</h3>
+<p>Opprett og synkroniser incidents/change requests i ServiceNow. Konfigurer instans-URL, autentisering (Basic Auth eller OAuth), tabell, assignment group og statusmapping.</p>
+
+<h3>Lagre og laste inn</h3>
+<p>Klikk &laquo;Lagre&raquo; for å lagre all konfigurasjon. Klikk &laquo;Last inn&raquo; for å hente sist lagrede versjon.</p>
+
+<!-- ════════ 7. SCORING ════════ -->
+<h1>7. Scoring-systemet</h1>
+
+<p>Scoring brukes til å prioritere forbedringsforslag objektivt. Alle dimensjoner settes på en skala fra 1 (lav) til 5 (høy).</p>
+
+<h2>7.1 WSJF – Grunnmodellen</h2>
+
+<p>WSJF (Weighted Shortest Job First) brukes for alle forslag:</p>
+
+<div class="formula">
+  WSJF = (Verdi + Hastegrad + Risiko) &times; Gjennomførbarhet &times; Avhengigheter &times; Innsats
+</div>
+
+<p>Høyere poengsum = høyere prioritet.</p>
+
+<h2>7.2 Løypespesifikke modeller</h2>
+
+<p>Når en løype velges, legges det til ekstra dimensjoner:</p>
+
+<h3><span class="track rpa">RPA</span> RPA Pipeline</h3>
+<table>
+<thead><tr><th>Dimensjon</th><th>Hva vurderer du?</th></tr></thead>
+<tbody>
+<tr><td>Transaksjonsvolum</td><td>Hvor mange transaksjoner håndteres?</td></tr>
+<tr><td>Regelbaserthet</td><td>Er prosessen regelbasert og forutsigbar?</td></tr>
+<tr><td>Digitaliseringsgrad</td><td>Er data og systemer allerede digitale?</td></tr>
+<tr><td>Prosess-stabilitet</td><td>Er prosessen stabil og sjelden endret?</td></tr>
+<tr><td>Estimert ROI</td><td>Forventet avkastning?</td></tr>
+</tbody>
+</table>
+
+<h3><span class="track integration">Integrasjon</span> Cost of Delay</h3>
+<table>
+<thead><tr><th>Dimensjon</th><th>Hva vurderer du?</th></tr></thead>
+<tbody>
+<tr><td>Forretningsverdi</td><td>Hvor stor er verdien av integrasjonen?</td></tr>
+<tr><td>Tidskritikalitet</td><td>Er det tidskritisk?</td></tr>
+<tr><td>Mulighetskostnad</td><td>Hva taper vi ved å vente?</td></tr>
+<tr><td>Nedstrøms blokkering</td><td>Blokkerer dette andre initiativer?</td></tr>
+</tbody>
+</table>
+
+<h3><span class="track sysdev">Systemutvikling</span> RICE</h3>
+<table>
+<thead><tr><th>Dimensjon</th><th>Hva vurderer du?</th></tr></thead>
+<tbody>
+<tr><td>Reach</td><td>Hvor mange brukere berøres?</td></tr>
+<tr><td>Impact</td><td>Hvor stor effekt per bruker?</td></tr>
+<tr><td>Confidence</td><td>Hvor sikre er vi på estimatene?</td></tr>
+<tr><td>Effort (invertert)</td><td>Hvor mye arbeid kreves?</td></tr>
+</tbody>
+</table>
+
+<h3><span class="track lowcode">No code / Low code</span> ICE</h3>
+<table>
+<thead><tr><th>Dimensjon</th><th>Hva vurderer du?</th></tr></thead>
+<tbody>
+<tr><td>Impact</td><td>Forventet effekt</td></tr>
+<tr><td>Confidence</td><td>Sikkerhet i vurderingen</td></tr>
+<tr><td>Ease</td><td>Hvor enkelt er det å gjennomføre?</td></tr>
+</tbody>
+</table>
+
+<h3><span class="track cots">Hyllevare</span> TCO / Fit</h3>
+<table>
+<thead><tr><th>Dimensjon</th><th>Hva vurderer du?</th></tr></thead>
+<tbody>
+<tr><td>Funksjonell dekning</td><td>Hvor godt dekker løsningen behovene?</td></tr>
+<tr><td>TCO (invertert)</td><td>Total eierskapskostnad</td></tr>
+<tr><td>Leverandørsoliditet</td><td>Er leverandøren pålitelig?</td></tr>
+<tr><td>Integrasjonsevne</td><td>Kan det integreres med eksisterende systemer?</td></tr>
+<tr><td>Sikkerhet/personvern</td><td>Oppfyller sikkerhetskravene?</td></tr>
+</tbody>
+</table>
+
+<h2>7.3 Sammensatt score</h2>
+
+<p>Den endelige scoren er summen av WSJF og alle valgte løype-scorer. Fargekoden gir rask oversikt:</p>
+
+<table>
+<thead><tr><th>Farge</th><th>Score</th><th>Betydning</th></tr></thead>
+<tbody>
+<tr><td style="background: var(--success-bg); color: var(--success); font-weight: 700; text-align: center;">Grønn</td><td>Over 200</td><td>Høy prioritet</td></tr>
+<tr><td style="background: var(--warning-bg); color: var(--warning); font-weight: 700; text-align: center;">Oransje</td><td>100–200</td><td>Middels prioritet</td></tr>
+<tr><td style="background: var(--danger-bg); color: var(--danger); font-weight: 700; text-align: center;">Rød</td><td>Under 100</td><td>Lavere prioritet</td></tr>
+</tbody>
+</table>
+
+<!-- ════════ 8. LIVSSYKLUS ════════ -->
+<h1>8. Oppgavens livssyklus</h1>
+
+<p>Et forbedringsforslag går gjennom følgende statuser:</p>
+
+<div class="flow">Innmeldt
+  &darr;  Utviklingsforum vurderer
+Under vurdering &rarr; Vurdert
+  &darr;  Forum godkjenner for sprint
+Klar for sprint
+  &darr;  Teamet starter arbeid
+Pågår
+  ├&rarr; Blokkert (ved hindringer)
+  │    └&rarr; tilbake til Pågår / Klar
+  └&rarr; Ferdig
+       &darr;
+     Arkivert
+
+Alternativt:
+  Innmeldt &rarr; Avvist &rarr; Arkivert</div>
+
+<h2>Statusoversikt</h2>
+
+<table>
+<thead><tr><th>Status</th><th>Betydning</th></tr></thead>
+<tbody>
+<tr><td><span class="status innmeldt">Innmeldt</span></td><td>Nytt forslag, venter på vurdering</td></tr>
+<tr><td><span class="status vurdering">Under vurdering</span></td><td>Forum har startet vurdering</td></tr>
+<tr><td><span class="status vurdert">Vurdert</span></td><td>Vurdert med løype og score, venter på beslutning</td></tr>
+<tr><td><span class="status klar">Klar for sprint</span></td><td>Godkjent og klar til å jobbes med</td></tr>
+<tr><td><span class="status pagar">Pågår</span></td><td>Under arbeid i gjeldende sprint</td></tr>
+<tr><td><span class="status blokkert">Blokkert</span></td><td>Stoppet av en avhengighet eller hindring</td></tr>
+<tr><td><span class="status ferdig">Ferdig</span></td><td>Fullført</td></tr>
+<tr><td><span class="status avvist">Avvist</span></td><td>Ikke godkjent av forum</td></tr>
+<tr><td><span class="status arkivert">Arkivert</span></td><td>Fjernet fra aktiv visning</td></tr>
+</tbody>
+</table>
+
+<!-- ════════ 9. DELOPPGAVER ════════ -->
+<h1>9. Deloppgaver</h1>
+
+<p>Store oppgaver kan deles opp i deloppgaver for bedre styring og sporing.</p>
+
+<h2>Opprette deloppgaver</h2>
+<ol>
+  <li>Åpne vurderingsvinduet for en oppgave</li>
+  <li>Scroll ned til &laquo;Deloppgaver&raquo;</li>
+  <li>Skriv inn tittel og velg story points</li>
+  <li>Klikk &laquo;+ Legg til&raquo;</li>
+</ol>
+
+<p>Deloppgaven får automatisk ID basert på hovedoppgaven (f.eks. T-001-A, T-001-B).</p>
+
+<h2>Sporing</h2>
+<ul>
+  <li>Hovedoppgaven viser en fremdriftsbar: &laquo;2/3 ferdig (67 %)&raquo;</li>
+  <li>Hver deloppgave kan ha egen status og sprinttilordning</li>
+  <li>I sprint-tavlen vises deloppgave-fremdriften på hovedoppgavens kort</li>
+  <li>Deloppgaver kan markeres som ferdige uavhengig av hovedoppgaven</li>
+</ul>
+
+<!-- ════════ 10. NAVIGASJON ════════ -->
+<h1>10. Navigasjon, tema og varsler</h1>
+
+<h2>Topplinjen</h2>
+<ul>
+  <li><strong>Appnavn og versjon</strong> – Vises til venstre</li>
+  <li><strong>Rolleveksler</strong> – Fire knapper for å bytte rolle (når tilgangsstyring er av)</li>
+  <li><strong>Tema-knapp</strong> – Måne/sol-ikon for å bytte mellom lyst og mørkt tema</li>
+  <li><strong>Faner</strong> – Endrer seg basert på valgt rolle</li>
+</ul>
+
+<h2>Mørkt tema</h2>
+<p>Klikk måne-ikonet i topplinjen for å bytte til mørkt tema. Alle farger justeres for behagelig lesing i dunkle omgivelser.</p>
+
+<h2>Varsler</h2>
+<p>Meldinger vises øverst til høyre og forsvinner automatisk etter noen sekunder.</p>
+<ul>
+  <li><strong style="color: var(--success);">Grønn</strong> – Bekreftelse (f.eks. &laquo;Forslag sendt til Utviklingsforum&raquo;)</li>
+  <li><strong style="color: var(--warning);">Oransje</strong> – Advarsel (f.eks. &laquo;Slettet&raquo; eller &laquo;Fyll inn tittel&raquo;)</li>
+</ul>
+
+<!-- ════════ 11. HURTIGREFERANSE ════════ -->
+<h1>11. Hurtigreferanse</h1>
+
+<table class="quick-ref">
+<thead><tr><th>Jeg vil...</th><th>Gå til</th></tr></thead>
+<tbody>
+<tr><td>Melde inn et forbedringsforslag</td><td><span class="role-badge medarbeider">Medarbeider</span> &rarr; Meld forslag</td></tr>
+<tr><td>Se status på mine forslag</td><td><span class="role-badge medarbeider">Medarbeider</span> &rarr; Mine</td></tr>
+<tr><td>Vurdere innkomne forslag</td><td><span class="role-badge forum">Forum</span> &rarr; Innkomne</td></tr>
+<tr><td>Se alle oppgaver med filtrering</td><td><span class="role-badge forum">Forum</span> &rarr; Alle</td></tr>
+<tr><td>Planlegge en sprint</td><td><span class="role-badge team">Team</span> &rarr; Sprint</td></tr>
+<tr><td>Se teamets kapasitet</td><td><span class="role-badge team">Team</span> &rarr; Kapasitet</td></tr>
+<tr><td>Se nøkkeltall og fremdrift</td><td><span class="role-badge team">Team</span> &rarr; Dashboard</td></tr>
+<tr><td>Opprette strategiske mål</td><td><span class="role-badge forum">Forum</span> / <span class="role-badge admin">Admin</span> &rarr; Mål</td></tr>
+<tr><td>Konfigurere systemet</td><td><span class="role-badge admin">Admin</span> &rarr; Konfig</td></tr>
+<tr><td>Bytte til mørkt tema</td><td>Klikk måne-ikonet i topplinjen</td></tr>
+</tbody>
+</table>
+
+<!-- ════════ FOOTER ════════ -->
+<div class="footer">
+  Hemit HF – Nyttestyringsverktøy v6.3 &middot; Brukerveiledning &middot; Februar 2026
+</div>
+
+</div>
+</body>
+</html>
