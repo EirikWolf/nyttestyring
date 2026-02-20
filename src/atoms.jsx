@@ -2,7 +2,13 @@ import React, { useState } from "react";
 import { useTheme } from "./ThemeContext";
 import { TRACKS, TIP } from "./constants";
 
-export const Badge=({children,color,bg,style={}})=><span style={{display:"inline-flex",alignItems:"center",gap:4,padding:"2px 10px",borderRadius:20,fontSize:11,fontWeight:600,color,background:bg,border:`1px solid ${color}20`,whiteSpace:"nowrap",...style}}>{children}</span>;
+export const Badge=({children,color,bg,variant,size="default",style={}})=>{
+  const C=useTheme();
+  const variants={status:{color:color||C.textSec,bg:bg||C.surfaceAlt},track:{color,bg:bg||color+"14"},priority:{color,bg:bg||color+"14"},count:{color:C.textMuted,bg:C.surfaceAlt,borderRadius:14,padding:"1px 7px"},info:{color:C.accent,bg:C.accent+"0C"}};
+  const sizes={small:{fontSize:8,padding:"1px 6px"},default:{fontSize:10,padding:"2px 10px"},large:{fontSize:12,padding:"3px 12px"}};
+  const v=variants[variant]||{};const sz=sizes[size]||sizes.default;
+  return <span style={{display:"inline-flex",alignItems:"center",gap:4,borderRadius:20,fontWeight:600,whiteSpace:"nowrap",color:color||v.color,background:bg||v.bg,border:`1px solid ${(color||v.color||C.border)}20`,...sz,...v,...style}}>{children}</span>;
+};
 
 export const TBadge=({id:tid})=>{const t=TRACKS.find(x=>x.id===tid);return t?<Badge color={t.color} bg={t.color+"14"}>{t.icon} {t.label}</Badge>:null;};
 
@@ -30,7 +36,57 @@ export const SBar=({value})=>{const C=useTheme();return <div style={{display:"fl
 
 export const Tip=({children,k,style={}})=>{const C=useTheme();return <span title={TIP[k]||""} style={{borderBottom:`1px dashed ${C.textMuted}55`,cursor:"help",...style}}>{children||k}</span>;};
 
-export const GoalPicker=({goals,selected=[],onChange})=>{const C=useTheme();return <div style={{display:"flex",flexDirection:"column",gap:3}}>
-  <label style={{fontSize:11,fontWeight:600,color:C.textSec}}>Strategiske mål <span style={{fontWeight:400,color:"#8896A6"}}>(handlingsplan)</span></label>
-  <div style={{display:"flex",gap:4,flexWrap:"wrap"}}>{goals.map(g=>{const sel=selected.includes(g.id);return <button key={g.id} type="button" onClick={()=>onChange(sel?selected.filter(x=>x!==g.id):[...selected,g.id])} style={{padding:"4px 10px",borderRadius:7,border:`1.5px solid ${sel?C.primary:C.border}`,background:sel?C.primary+"0C":"transparent",color:sel?C.primary:C.textMuted,fontSize:10,fontWeight:600,cursor:"pointer",outline:"none",textAlign:"left"}}>{g.type==="Delmål"?"↳ ":""}{g.title}{sel?" ✓":""}</button>;})}</div>
-</div>;};
+export const KriterieScoring=({label,weight,value,onChange,examples=[],reason,onReasonChange})=>{
+  const C=useTheme();
+  const pct=Math.round(weight*100);
+  const clr=value>=7?C.success:value>=4?C.warning:value>0?C.accent:C.textMuted;
+  return <div style={{marginBottom:14,padding:12,background:C.surface,borderRadius:10,border:`1px solid ${C.border}`,borderLeft:`4px solid ${clr}`}}>
+    <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:6}}>
+      <label style={{fontSize:12,fontWeight:700,color:C.text}}>{label}</label>
+      <span style={{fontSize:9,fontWeight:600,color:C.textMuted,background:C.surfaceAlt,borderRadius:10,padding:"2px 8px"}}>{pct}%</span>
+    </div>
+    <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:4}}>
+      <input type="range" min={0} max={10} step={1} value={value} onChange={onChange} style={{flex:1,accentColor:clr}}/>
+      <span style={{fontSize:18,fontWeight:800,color:clr,minWidth:28,textAlign:"right"}}>{value}</span>
+    </div>
+    {examples[value]&&<div style={{padding:"6px 10px",background:clr+"12",borderRadius:6,border:`1px solid ${clr}25`,marginBottom:6}}>
+      <span style={{fontSize:10,fontWeight:600,color:clr}}>{value} – {examples[value]}</span>
+    </div>}
+    <textarea value={reason||""} onChange={onReasonChange} placeholder="Begrunnelse (valgfritt)..." rows={2} style={{width:"100%",boxSizing:"border-box",padding:"6px 8px",borderRadius:6,border:`1px solid ${C.border}`,fontSize:11,color:C.text,background:C.surface,fontFamily:"inherit",outline:"none",resize:"vertical"}}/>
+  </div>;
+};
+
+export const GoalPicker=({goals,selected=[],onChange})=>{
+  const C=useTheme();
+  const [expanded,setExpanded]=useState(new Set());
+  const mainGoals=goals.filter(g=>!g.parent);
+  const toggleExpand=id=>{setExpanded(prev=>{const n=new Set(prev);if(n.has(id))n.delete(id);else n.add(id);return n;});};
+  const toggleSelect=(id)=>{onChange(selected.includes(id)?selected.filter(x=>x!==id):[...selected,id]);};
+  return <div style={{display:"flex",flexDirection:"column",gap:3}}>
+    <label style={{fontSize:11,fontWeight:600,color:C.textSec}}>Strategiske mål <span style={{fontWeight:400,color:"#8896A6"}}>(handlingsplan)</span></label>
+    <div style={{display:"flex",flexDirection:"column",gap:5}}>
+      {mainGoals.map(m=>{
+        const subs=goals.filter(g=>g.parent===m.id);
+        const isExp=expanded.has(m.id);
+        const mSel=selected.includes(m.id);
+        const subSelCount=subs.filter(s=>selected.includes(s.id)).length;
+        return <div key={m.id} style={{borderRadius:8,border:`1.5px solid ${mSel?C.primary:C.border}`,background:mSel?C.primary+"06":C.surface,overflow:"hidden"}}>
+          <div style={{display:"flex",alignItems:"center",gap:0}}>
+            {subs.length>0&&<button type="button" onClick={()=>toggleExpand(m.id)} style={{background:"none",border:"none",cursor:"pointer",padding:"6px 6px 6px 10px",fontSize:12,color:C.textMuted,lineHeight:1,flexShrink:0}} title={isExp?"Skjul delmål":"Vis delmål"}>{isExp?"▾":"▸"}</button>}
+            <button type="button" onClick={()=>toggleSelect(m.id)} style={{flex:1,padding:subs.length>0?"6px 10px 6px 2px":"6px 10px 6px 10px",background:"none",border:"none",cursor:"pointer",textAlign:"left",display:"flex",alignItems:"center",gap:6}}>
+              <span style={{fontSize:11,fontWeight:700,color:mSel?C.primary:C.text}}>🎯 {m.title}</span>
+              {mSel&&<span style={{fontSize:10,color:C.primary}}>✓</span>}
+              {subs.length>0&&<span style={{fontSize:9,color:C.textMuted,background:C.surfaceAlt,borderRadius:10,padding:"1px 6px",marginLeft:"auto",flexShrink:0}}>{subSelCount>0?`${subSelCount}/`:""}{subs.length} delmål</span>}
+            </button>
+          </div>
+          {isExp&&subs.length>0&&<div style={{borderTop:`1px solid ${C.border}`,padding:"4px 0 4px 0",background:C.surfaceAlt+"66"}}>
+            {subs.map(s=>{const sSel=selected.includes(s.id);return <button key={s.id} type="button" onClick={()=>toggleSelect(s.id)} style={{display:"flex",alignItems:"center",gap:5,width:"100%",padding:"5px 10px 5px 28px",background:sSel?C.primary+"0A":"transparent",border:"none",borderLeft:`3px solid ${sSel?C.primary:C.border}`,cursor:"pointer",textAlign:"left",transition:"all .1s"}}>
+              <span style={{fontSize:10,fontWeight:600,color:sSel?C.primary:C.textMuted}}>↳ {s.title}</span>
+              {sSel&&<span style={{fontSize:10,color:C.primary,marginLeft:"auto"}}>✓</span>}
+            </button>;})}
+          </div>}
+        </div>;
+      })}
+    </div>
+  </div>;
+};

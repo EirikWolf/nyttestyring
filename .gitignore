@@ -10,3 +10,8 @@ ui-debug.log
 .DS_Store
 Thumbs.db
 *.log
+.claude/
+nul
+.claude/settings.local.json
+Brukerveiledning-Hemit-Nyttestyring-v6.3.docx
+.~lock.*
