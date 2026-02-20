@@ -48,6 +48,8 @@ export default function App(){
   const [confirmSubmit,setConfirmSubmit]=useState(null);
   const [aiLoading,setAiLoading]=useState(null);
   const [aiError,setAiError]=useState(null);
+  const [configUnlocked,setConfigUnlocked]=useState(false);
+  const [configPw,setConfigPw]=useState("");
   const [loading,setLoading]=useState(true);
   /* B.5: responsive mobile detection */
   const [isMobile,setIsMobile]=useState(typeof window!=="undefined"&&window.innerWidth<768);
@@ -96,6 +98,7 @@ export default function App(){
   const sorted=useMemo(()=>{let a=[...activeTasks];if(role==="team")a=a.filter(t=>t.reviewed);if(filterTrack!=="all")a=a.filter(t=>(t.tracks||[]).includes(filterTrack));if(filterStatus!=="all")a=a.filter(t=>t.status===filterStatus);if(searchQ){const q=searchQ.toLowerCase();a=a.filter(t=>t.title.toLowerCase().includes(q)||t.desc?.toLowerCase().includes(q)||t.submitterName?.toLowerCase().includes(q)||t.processOwner?.toLowerCase().includes(q));}const o={critical:4,high:3,medium:2,low:1};if(sortBy==="score")a.sort((x,y)=>composite(y)-composite(x));else if(sortBy==="priority")a.sort((x,y)=>(o[y.priority]||0)-(o[x.priority]||0));else if(sortBy==="date")a.sort((x,y)=>y.date.localeCompare(x.date));else if(sortBy==="id"){const parents=a.filter(t=>!t.parentId);const children=a.filter(t=>t.parentId);parents.sort((x,y)=>x.id.localeCompare(y.id));const result=[];parents.forEach(p=>{result.push(p);const subs=children.filter(c=>c.parentId===p.id).sort((x,y)=>x.id.localeCompare(y.id));result.push(...subs);});const placed=new Set(result.map(t=>t.id));children.filter(c=>!placed.has(c.id)).sort((x,y)=>x.id.localeCompare(y.id)).forEach(c=>result.push(c));a=result;}return a;},[activeTasks,sortBy,filterTrack,filterStatus,searchQ,role,composite]);
   /* B.6: Reset page when filters change */
   useEffect(()=>{setPage(0);},[filterTrack,filterStatus,searchQ,sortBy,showArchived]);
+  useEffect(()=>{if(tab!=="config"){setConfigUnlocked(false);setConfigPw("");}},[tab]);
   const reviewedSorted=useMemo(()=>sorted.filter(t=>t.reviewed),[sorted]);
   const totalPages=Math.ceil(reviewedSorted.length/PAGE_SIZE);
   const paged=reviewedSorted.slice(page*PAGE_SIZE,(page+1)*PAGE_SIZE);
@@ -549,6 +552,9 @@ export default function App(){
       </div>}
 
       {tab==="config"&&<div style={{maxWidth:760,margin:"0 auto"}}><h1 style={{fontSize:20,fontWeight:700,color:C.primary,margin:"0 0 12px"}}>Konfigurasjon</h1>
+        {!configUnlocked?<Card style={{marginBottom:12,textAlign:"center",padding:"40px 20px"}}><SH>🔒 Passordbeskytta</SH><p style={{fontSize:12,color:C.textMuted,margin:"8px 0 16px"}}>Skriv inn passord for å få tilgang til konfigurasjonen.</p>
+          <div style={{display:"flex",gap:8,justifyContent:"center",alignItems:"center"}}><input type="password" value={configPw} onChange={e=>setConfigPw(e.target.value)} onKeyDown={e=>{if(e.key==="Enter"){if(configPw==="22navenena"){setConfigUnlocked(true);setConfigPw("");}else{setConfigPw("");alert("Feil passord");}}}} placeholder="Passord..." style={{fontSize:13,padding:"8px 14px",borderRadius:8,border:`1px solid ${C.border}`,background:C.surface,color:C.text,width:220}}/><Btn onClick={()=>{if(configPw==="22navenena"){setConfigUnlocked(true);setConfigPw("");}else{setConfigPw("");alert("Feil passord");}}} style={{padding:"8px 18px"}}>Lås opp</Btn></div>
+        </Card>:<>
         <Card style={{marginBottom:12}}><SH>Generelt</SH>
           <TF label="Appnavn (vises i headingen)" id="cfg-appTitle" value={config.appTitle||"Hemit Nyttestyring"} onChange={e=>setConfig(c=>({...c,appTitle:e.target.value}))} placeholder="Hemit Nyttestyring"/>
           <div style={{marginTop:10}}><TF label="Gemini API-nøkkel (for AI-assistanse)" id="cfg-aiKey" type="password" value={config.geminiApiKey||""} onChange={e=>setConfig(c=>({...c,geminiApiKey:e.target.value}))} placeholder="AIza..."/></div>
@@ -783,7 +789,7 @@ export default function App(){
           </div>}
         </Card>
 
-        <div style={{display:"flex",gap:8,justifyContent:"flex-end"}}><Btn variant="secondary" onClick={loadConfig} style={{background:C.surfaceAlt,color:C.primary}}>📥 Last inn</Btn><Btn onClick={saveConfig}>💾 Lagre</Btn></div></div>}
+        <div style={{display:"flex",gap:8,justifyContent:"flex-end"}}><Btn variant="secondary" onClick={loadConfig} style={{background:C.surfaceAlt,color:C.primary}}>📥 Last inn</Btn><Btn onClick={saveConfig}>💾 Lagre</Btn></div></>}</div>}
 
     </main>
     <footer style={{borderTop:`1px solid ${C.border}`,padding:"10px 18px",textAlign:"center",fontSize:10,color:C.textMuted}}>Hemit HF – Nyttestyringsverktøy v7.0 · 37,5 t/uke</footer>
