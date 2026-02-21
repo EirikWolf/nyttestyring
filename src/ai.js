@@ -1,5 +1,5 @@
 // ══ AI-hjelpefunksjoner – Google Gemini API ══
-import { SCORING_CRITERIA } from "./constants";
+import { SCORING_CRITERIA, BENEFIT_CATEGORIES, BENEFIT_UNITS, BENEFIT_CLASSIFICATIONS } from "./constants";
 
 const GEMINI_BASE = "https://generativelanguage.googleapis.com/v1beta";
 const DEFAULT_MODEL = "gemini-2.5-flash";
@@ -121,4 +121,66 @@ Vær realistisk og nøktern i vurderingen. Skriv begrunnelser på norsk.`;
     }
   });
   return result;
+};
+
+// ── Schema for "Foreslå nytte" ──────────────────
+const BENEFIT_ESTIMATE_SCHEMA = {
+  type: "object",
+  properties: {
+    expectedBenefit: { type: "string", description: "Kort beskrivelse av forventet nytteeffekt (1-2 setninger)" },
+    benefitCategory: { type: "string", enum: BENEFIT_CATEGORIES.map(c => c.id), description: "Nyttekategori" },
+    benefitUnit: { type: "string", enum: BENEFIT_UNITS.map(u => u.id), description: "Mest relevant måleenhet" },
+    benefitClassification: { type: "string", enum: BENEFIT_CLASSIFICATIONS.map(c => c.id), description: "Kvantitativ eller kvalitativ" },
+    benefitMetric: { type: "string", description: "Konkret metrikk/KPI som bør måles, f.eks. 'Behandlingstid per sak'" },
+    benefitBaseline: { type: "string", description: "Realistisk estimat av nåverdi (baseline) som tall" },
+    benefitTarget: { type: "string", description: "Realistisk målverdi etter implementering som tall" },
+    estimatedAnnualSaving: { type: "string", description: "Estimert årlig besparelse i NOK som tall (kun siffer)" },
+  },
+  required: ["expectedBenefit", "benefitCategory", "benefitUnit", "benefitClassification", "benefitMetric", "benefitBaseline", "benefitTarget", "estimatedAnnualSaving"],
+};
+
+/**
+ * Funksjon C: Foreslå nytteverdier basert på innmeldingsdata.
+ * Returnerer forslag til alle felt under "Forventet nytte" + estimert årlig besparelse.
+ */
+export const suggestBenefitEstimate = async (config, taskData) => {
+  const apiKey = getApiKey(config);
+
+  const kategorier = BENEFIT_CATEGORIES.map(c => `${c.id} = ${c.label}`).join(", ");
+  const enheter = BENEFIT_UNITS.map(u => `${u.id} = ${u.label}`).join(", ");
+
+  const prompt = `Du er en ekspert på nyttevurdering og gevinstrealisering i norsk spesialisthelsetjeneste (Helse Midt-Norge).
+
+Oppgave: Estimer forventet nytte og fyll ut alle felt basert på følgende informasjon om et forbedringstiltak.
+
+═══ INNMELDT INFORMASJON ═══
+Tittel: ${taskData.title || "Ikke angitt"}
+Beskrivelse: ${taskData.desc || "Ikke angitt"}
+Løsningskategori: ${taskData.solutionCategory || "Ikke angitt"}
+Behov: ${taskData.needSummary || "Ikke angitt"}
+Bakgrunn: ${taskData.background || "Ikke angitt"}
+Kvalitative gevinster (innmeldt): ${taskData.qualitativeBenefits || "Ikke angitt"}
+Kvantitative gevinster (innmeldt): ${taskData.quantitativeBenefits || "Ikke angitt"}
+Manuell oppgave i dag: ${taskData.manualTask === "yes" ? "Ja" : taskData.manualTask === "no" ? "Nei" : "Ikke angitt"}
+Hvem utfører oppgaven: ${taskData.taskPerformer || "Ikke angitt"}
+Frekvens: ${taskData.frequency || "Ikke angitt"}
+Volum per gang: ${taskData.volumePerTime || "Ikke angitt"}
+Forventet tidsbesparelse (t/år): ${taskData.annualTimeSaving || "Ikke angitt"}
+Involerte systemer: ${taskData.involvedSystems || "Ikke angitt"}
+Foretak: ${taskData.enterprise || "Ikke angitt"}
+
+═══ TILGJENGELIGE VERDIER ═══
+Nyttekategorier: ${kategorier}
+Måleenheter: ${enheter}
+Klassifisering: kvantitativ, kvalitativ
+
+═══ INSTRUKSJONER ═══
+- Gi et konkret, realistisk estimat for hvert felt
+- benefitBaseline og benefitTarget skal være realistiske tallverdier i valgt måleenhet
+- estimatedAnnualSaving skal være et realistisk beløp i NOK (kun siffer, ingen valutategn)
+- Bruk innmeldt tidsbesparelse, volum og frekvens for å beregne besparelse der det er mulig
+- Vær konservativ i estimatene – heller for lavt enn for høyt
+- Alle tekstfelt på norsk`;
+
+  return callGemini(apiKey, prompt, BENEFIT_ESTIMATE_SCHEMA);
 };

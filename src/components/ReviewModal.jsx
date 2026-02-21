@@ -5,6 +5,7 @@ import { Badge, Card, Btn, SH, TF, SF, Sl, GoalPicker, Tip, KriterieScoring } fr
 import AttachArea from "./AttachArea";
 import CommentsPanel from "./CommentsPanel";
 import HistoryPanel from "./HistoryPanel";
+import { suggestBenefitEstimate } from "../ai";
 
 const TABS=[
   {id:"scoring",label:"Vurdering",icon:"📊"},
@@ -20,6 +21,8 @@ const ReviewModal=({task,onClose,config,goals,role,updateTask,addComment,notify,
   const[cmt,setCmt]=useState("");
   const[subForm,setSubForm]=useState({title:"",size:3,sprintAssign:""});
   const[activeTab,setActiveTab]=useState("scoring");
+  const[aiLoading,setAiLoading]=useState(false);
+  const[aiError,setAiError]=useState(null);
   const tog=id=>sF(p=>({...p,tracks:(p.tracks||[]).includes(id)?(p.tracks||[]).filter(x=>x!==id):[...(p.tracks||[]),id]}));
   /* B.4: dirty-tracking for unsaved changes warning */
   const dirty=JSON.stringify(f)!==JSON.stringify(task)||cmt.trim().length>0;
@@ -100,8 +103,43 @@ const ReviewModal=({task,onClose,config,goals,role,updateTask,addComment,notify,
       </Card>
     </details>
 
+    {/* ═══ Forenklet visning for deloppgaver ═══ */}
+    {task.parentId&&<div>
+      <div style={{marginBottom:10,padding:"6px 10px",background:C.accent+"08",borderRadius:7,border:`1px solid ${C.accent}20`}}><span style={{fontSize:11,color:C.accent}}>🔗 Deloppgave av <strong>{task.parentId}</strong>: {tasks.find(t=>t.id===task.parentId)?.title||"—"}</span></div>
+
+      <SH>Løype(r)</SH>
+      <div style={{display:"flex",gap:5,flexWrap:"wrap",marginBottom:14}}>{TRACKS.map(tr=>{const sel=(f.tracks||[]).includes(tr.id);return <button key={tr.id} type="button" onClick={()=>tog(tr.id)} style={{padding:"7px 14px",borderRadius:9,border:`2px solid ${sel?tr.color:C.border}`,background:sel?tr.color+"0C":"transparent",color:sel?tr.color:C.textMuted,fontWeight:600,fontSize:11,cursor:"pointer"}}>{tr.icon} {tr.label}{sel&&" ✓"}</button>;})}</div>
+
+      <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:10}}>
+        <SF label="Prioritet" id="r-prio" value={f.priority||"medium"} onChange={e=>sF(p=>({...p,priority:e.target.value}))}>{PRIORITIES.map(p=><option key={p.id} value={p.id}>{p.label}</option>)}</SF>
+        <SF label="Status" id="r-status" value={f.status} onChange={e=>sF(p=>({...p,status:e.target.value}))}>{STATUSES.map(s=><option key={s.id} value={s.id}>{s.label}</option>)}</SF>
+        <TF label="Faktisk tidsbruk (t)" id="r-hrs" type="number" value={f.actualHours||0} onChange={e=>sF(p=>({...p,actualHours:parseFloat(e.target.value)||0}))}/>
+      </div>
+      <div style={{marginTop:8}}><TF label="Kommentar" id="r-cmt" value={cmt} onChange={e=>setCmt(e.target.value)} placeholder="Begrunnelse..."/></div>
+      {(task.attachments||[]).length>0&&<div style={{marginTop:10}}><AttachArea attachments={task.attachments} readOnly/></div>}
+      {/* Avhengigheter */}
+      <div style={{marginTop:10}}>
+        <label style={{fontSize:11,fontWeight:600,color:C.textSec}}>🔗 Blokkert av (avhengigheter)</label>
+        <div style={{display:"flex",gap:4,flexWrap:"wrap",marginTop:4}}>
+          {(f.blockedBy||[]).map(depId=>{const dep=tasks.find(t=>t.id===depId);const done=dep&&(dep.status==="done"||dep.status==="archived");return <span key={depId} style={{display:"inline-flex",alignItems:"center",gap:3,padding:"3px 8px",borderRadius:6,fontSize:10,fontWeight:600,border:`1px solid ${done?C.success+"40":C.danger+"40"}`,background:done?C.successBg:C.dangerBg,color:done?C.success:C.danger}}>{depId}: {dep?.title||"?"}{done?" ✓":" ⏳"}<button type="button" onClick={()=>sF(p=>({...p,blockedBy:(p.blockedBy||[]).filter(x=>x!==depId)}))} style={{background:"none",border:"none",cursor:"pointer",fontSize:10,color:C.danger,padding:0,marginLeft:2}}>✕</button></span>;})}
+        </div>
+        <div style={{display:"flex",gap:4,marginTop:4}}>
+          <select onChange={e=>{const v=e.target.value;if(v&&!(f.blockedBy||[]).includes(v)&&v!==task.id)sF(p=>({...p,blockedBy:[...(p.blockedBy||[]),v]}));e.target.value="";}} style={{fontSize:10,padding:"3px 6px",borderRadius:4,border:`1px solid ${C.border}`,background:C.surface,color:C.text,flex:1}}>
+            <option value="">+ Legg til avhengighet...</option>
+            {tasks.filter(t=>t.id!==task.id&&!(f.blockedBy||[]).includes(t.id)).map(t=><option key={t.id} value={t.id}>{t.id}: {t.title}</option>)}
+          </select>
+        </div>
+      </div>
+      <div style={{marginTop:14}}>
+        <CommentsPanel task={task} role={role} onAdd={txt=>addComment(task.id,txt)}/>
+        <HistoryPanel task={task}/>
+      </div>
+    </div>}
+
+    {/* ═══ Fane-visning for hovedoppgaver ═══ */}
+    {!task.parentId&&<>
     {/* Tab bar (B1) */}
-    <div style={{display:"flex",gap:1,background:C.surfaceAlt,borderRadius:8,padding:3,marginBottom:14}}>{TABS.filter(t=>t.id!=="subtasks"||!task.parentId).map(t=><button key={t.id} onClick={()=>setActiveTab(t.id)} style={{flex:1,padding:"6px 8px",borderRadius:6,border:"none",cursor:"pointer",fontSize:10,fontWeight:600,background:activeTab===t.id?C.surface:"transparent",color:activeTab===t.id?C.primary:C.textMuted,boxShadow:activeTab===t.id?"0 1px 3px rgba(0,0,0,.08)":"none"}}>{t.icon} {t.label}</button>)}</div>
+    <div style={{display:"flex",gap:1,background:C.surfaceAlt,borderRadius:8,padding:3,marginBottom:14}}>{TABS.map(t=><button key={t.id} onClick={()=>setActiveTab(t.id)} style={{flex:1,padding:"6px 8px",borderRadius:6,border:"none",cursor:"pointer",fontSize:10,fontWeight:600,background:activeTab===t.id?C.surface:"transparent",color:activeTab===t.id?C.primary:C.textMuted,boxShadow:activeTab===t.id?"0 1px 3px rgba(0,0,0,.08)":"none"}}>{t.icon} {t.label}</button>)}</div>
 
     {/* ═══ Scoring Tab ═══ */}
     {activeTab==="scoring"&&<div>
@@ -120,7 +158,6 @@ const ReviewModal=({task,onClose,config,goals,role,updateTask,addComment,notify,
       </div>
       <div style={{marginTop:8}}><TF label="Kommentar" id="r-cmt" value={cmt} onChange={e=>setCmt(e.target.value)} placeholder="Begrunnelse..."/></div>
       {(task.attachments||[]).length>0&&<div style={{marginTop:10}}><AttachArea attachments={task.attachments} readOnly/></div>}
-      {task.parentId&&<div style={{marginTop:10,padding:"6px 10px",background:C.accent+"08",borderRadius:7,border:`1px solid ${C.accent}20`}}><span style={{fontSize:11,color:C.accent}}>🔗 Deloppgave av <strong>{task.parentId}</strong>: {tasks.find(t=>t.id===task.parentId)?.title||"—"}</span></div>}
       {/* A3: Avhengigheter */}
       <div style={{marginTop:10}}>
         <label style={{fontSize:11,fontWeight:600,color:C.textSec}}>🔗 Blokkert av (avhengigheter)</label>
@@ -145,7 +182,27 @@ const ReviewModal=({task,onClose,config,goals,role,updateTask,addComment,notify,
       {/* C.2: Nytteeier */}
       <div style={{marginTop:SP.sm}}><TF label="Nytteeier" id="r-bowner" value={f.benefitOwner||""} onChange={e=>sF(p=>({...p,benefitOwner:e.target.value}))} placeholder="Hvem er ansvarlig for nytterealisering?"/></div>
       <div style={{marginTop:SP.sm}}/>
-      <SH>📈 Forventet nytte</SH>
+      <div style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+        <SH>📈 Forventet nytte</SH>
+        <Btn variant="secondary" disabled={aiLoading} onClick={async()=>{
+          setAiLoading(true);setAiError(null);
+          try{
+            const r=await suggestBenefitEstimate(config,f);
+            sF(p=>({...p,
+              expectedBenefit:r.expectedBenefit||p.expectedBenefit,
+              benefitCategory:r.benefitCategory||p.benefitCategory,
+              benefitUnit:r.benefitUnit||p.benefitUnit,
+              benefitClassification:r.benefitClassification||p.benefitClassification,
+              benefitMetric:r.benefitMetric||p.benefitMetric,
+              benefitBaseline:r.benefitBaseline||p.benefitBaseline,
+              benefitTarget:r.benefitTarget||p.benefitTarget,
+              estimatedAnnualSaving:r.estimatedAnnualSaving||p.estimatedAnnualSaving,
+            }));
+            notify("Nytteforslag fylt ut av KI.");
+          }catch(e){setAiError(e.message);}finally{setAiLoading(false);}
+        }} style={{fontSize:10,padding:"4px 10px"}}>{aiLoading?"⏳ Vurderer...":"✨ Foreslå nytte"}</Btn>
+      </div>
+      {aiError&&<div style={{padding:"6px 10px",background:C.dangerBg,borderRadius:7,marginBottom:6,fontSize:11,color:C.danger,display:"flex",alignItems:"center",gap:6}}>⚠️ {aiError}<button onClick={()=>setAiError(null)} style={{background:"none",border:"none",cursor:"pointer",fontSize:10,color:C.danger,padding:0}}>✕</button></div>}
       <TF label="Forventet nytteeffekt" id="r-ben" value={f.expectedBenefit||""} onChange={e=>sF(p=>({...p,expectedBenefit:e.target.value}))} placeholder="Beskrivelse av forventet gevinst..."/>
       <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8,marginTop:8,marginBottom:8}}>
         <SF label="Nyttekategori" id="r-bcat" value={f.benefitCategory||""} onChange={e=>sF(p=>({...p,benefitCategory:e.target.value}))}><option value="">— Velg —</option>{BENEFIT_CATEGORIES.map(c=><option key={c.id} value={c.id}>{c.label}</option>)}</SF>
@@ -274,6 +331,7 @@ const ReviewModal=({task,onClose,config,goals,role,updateTask,addComment,notify,
       <CommentsPanel task={task} role={role} onAdd={txt=>addComment(task.id,txt)}/>
       <HistoryPanel task={task}/>
     </div>}
+    </>}
 
     {/* Footer actions (B7: save draft) */}
     <div style={{display:"flex",justifyContent:"flex-end",gap:6,marginTop:14}}>
