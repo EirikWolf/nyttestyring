@@ -860,3 +860,64 @@ describe("getAttachIcon", () => {
     expect(getAttachIcon({ name: "annen.zip" })).toBe("📄");
   });
 });
+
+// ── INIT_GOALS struktur-validering ──
+import { INIT_GOALS } from "../data";
+
+describe("INIT_GOALS structure", () => {
+  test("inneholder 24 mål (5 hovedmål + 19 delmål)", () => {
+    expect(INIT_GOALS).toHaveLength(24);
+    const hoved = INIT_GOALS.filter(g => g.type === "Hovedmål");
+    const del = INIT_GOALS.filter(g => g.type === "Delmål");
+    expect(hoved).toHaveLength(5);
+    expect(del).toHaveLength(19);
+  });
+
+  test("alle hovedmål har parent: null", () => {
+    INIT_GOALS.filter(g => g.type === "Hovedmål").forEach(g => {
+      expect(g.parent).toBeNull();
+    });
+  });
+
+  test("alle delmål har gyldig parent som peker til et hovedmål", () => {
+    const hovedIds = INIT_GOALS.filter(g => g.type === "Hovedmål").map(g => g.id);
+    INIT_GOALS.filter(g => g.type === "Delmål").forEach(g => {
+      expect(hovedIds).toContain(g.parent);
+    });
+  });
+
+  test("alle mål-IDer er unike", () => {
+    const ids = INIT_GOALS.map(g => g.id);
+    expect(new Set(ids).size).toBe(ids.length);
+  });
+
+  test("hvert mål har pålagt feltstruktur", () => {
+    INIT_GOALS.forEach(g => {
+      expect(g.id).toBeTruthy();
+      expect(g.title).toBeTruthy();
+      expect(["Hovedmål", "Delmål"]).toContain(g.type);
+      expect(g).toHaveProperty("metric");
+      expect(g).toHaveProperty("baseline");
+      expect(g).toHaveProperty("target");
+      expect(g).toHaveProperty("current");
+      expect(g).toHaveProperty("deadline");
+      expect(g).toHaveProperty("kpiStatus");
+      expect(g).toHaveProperty("kpiHistory");
+    });
+  });
+
+  test("hierarkistruktur matcher handlingsplan", () => {
+    const childrenOf = (parentId) =>
+      INIT_GOALS.filter(g => g.parent === parentId).map(g => g.id);
+    // Mål 1: 4 delmål (G-02..G-05)
+    expect(childrenOf("G-01")).toHaveLength(4);
+    // Mål 2: 4 delmål (G-07..G-10)
+    expect(childrenOf("G-06")).toHaveLength(4);
+    // Mål 3: 4 delmål (G-12..G-15)
+    expect(childrenOf("G-11")).toHaveLength(4);
+    // Mål 4: 4 delmål (G-17..G-20)
+    expect(childrenOf("G-16")).toHaveLength(4);
+    // Mål 5: 3 delmål (G-22..G-24)
+    expect(childrenOf("G-21")).toHaveLength(3);
+  });
+});
