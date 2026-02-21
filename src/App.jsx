@@ -812,7 +812,7 @@ export default function App(){
           </div>}
         </Card>
 
-        <div style={{display:"flex",gap:8,justifyContent:"flex-end"}}><Btn variant="secondary" onClick={loadConfig} style={{background:C.surfaceAlt,color:C.primary}}>📥 Last inn</Btn><Btn onClick={saveConfig}>💾 Lagre</Btn></div></>}</div>}
+        <div style={{display:"flex",gap:8,justifyContent:"flex-end"}}><Btn variant="secondary" onClick={()=>{if(confirm("⚠️ Dette vil overskrive alle oppgaver, mål, team og sprinter med standarddata. Fortsette?")){setTasks(INIT_TASKS);setGoals(INIT_GOALS);setTeam(INIT_TEAM);setSprints(INIT_SPRINTS);notify("Testdata nullstilt ✓");}}} style={{background:"#d32f2f",color:"#fff",fontSize:10,padding:"5px 12px"}}>🔄 Nullstill testdata</Btn><Btn variant="secondary" onClick={loadConfig} style={{background:C.surfaceAlt,color:C.primary}}>📥 Last inn</Btn><Btn onClick={saveConfig}>💾 Lagre</Btn></div></>}</div>}
 
     </main>
     <footer style={{borderTop:`1px solid ${C.border}`,padding:"10px 18px",textAlign:"center",fontSize:10,color:C.textMuted}}>Hemit HF – Nyttestyringsverktøy v7.0 · 37,5 t/uke</footer>
