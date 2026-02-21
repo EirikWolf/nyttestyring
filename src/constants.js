@@ -229,11 +229,8 @@ export const calcRealizationPct=(baseline,target,actual)=>{
 };
 
 // ══ C.1: Nyttetype og klassifisering ══
-export const BENEFIT_TYPES=[
-  {id:"kostnadsreduksjon",label:"Kostnadsreduksjon"},{id:"tidsbesparing",label:"Tidsbesparing"},
-  {id:"kvalitetsforbedring",label:"Kvalitetsforbedring"},{id:"brukertilfredshet",label:"Brukertilfredshet"},
-  {id:"risikoreduksjon",label:"Risikoreduksjon"},{id:"etterlevelse",label:"Etterlevelse"},
-];
+// BENEFIT_TYPES fjernet — var duplikat av BENEFIT_CATEGORIES
+export const BENEFIT_TYPES=BENEFIT_CATEGORIES; // bakoverkompatibel alias
 export const BENEFIT_CLASSIFICATIONS=[
   {id:"kvantitativ",label:"Kvantitativ"},{id:"kvalitativ",label:"Kvalitativ"},
 ];
@@ -398,12 +395,18 @@ export const EXPORT_COLUMNS=[
   {id:"cost",label:"Est.kostnad",get:t=>t.estimatedCost||""},{id:"saving",label:"Est.besparelse",get:t=>t.estimatedAnnualSaving||""},
   {id:"benefitType",label:"Nyttetype",get:t=>t.benefitType||""},{id:"benefitActual",label:"Faktisk nytte",get:t=>t.benefitActual||""},
   {id:"benefitOwner",label:"Nytteeier",get:t=>t.benefitOwner||""},
+  {id:"enterprise",label:"Foretak",get:t=>t.enterprise||""},{id:"solutionCategory",label:"Løsningskategori",get:t=>t.solutionCategory||""},
+  {id:"pilotUnit",label:"Pilotenhet",get:t=>t.pilotUnit||""},{id:"serviceNowRef",label:"ServiceNow",get:t=>t.serviceNowRef||""},
+  {id:"annualTimeSaving",label:"Tidsbesparelse (t/år)",get:t=>t.annualTimeSaving||""},
+  {id:"involvedSystems",label:"Involerte systemer",get:t=>t.involvedSystems||""},
+  {id:"qualBenefits",label:"Kvalitative gevinster",get:t=>t.qualitativeBenefits||""},
+  {id:"quantBenefits",label:"Kvantitative gevinster",get:t=>t.quantitativeBenefits||""},
   {id:"leadTime",label:"Lead Time (d)",get:t=>calcLeadTime(t)||""},{id:"cycleTime",label:"Cycle Time (d)",get:t=>calcCycleTime(t)||""},
 ];
 export const EXPORT_TEMPLATES=[
   {id:"sprint",label:"Sprint-rapport",cols:["id","title","status","sp","hours","tracks","sprint"]},
-  {id:"benefit",label:"Nytterapport",cols:["id","title","status","cost","saving","benefitType","benefitActual","benefitOwner"]},
-  {id:"portfolio",label:"Porteføljeoversikt",cols:["id","title","status","priority","tracks","sp","cost","saving","leadTime","cycleTime"]},
+  {id:"benefit",label:"Nytterapport",cols:["id","title","status","enterprise","solutionCategory","cost","saving","annualTimeSaving","benefitType","benefitActual","benefitOwner","qualBenefits","quantBenefits"]},
+  {id:"portfolio",label:"Porteføljeoversikt",cols:["id","title","status","priority","tracks","enterprise","sp","cost","saving","leadTime","cycleTime"]},
 ];
 export const exportCsvAdvanced=(tasks,colIds,compositeScore,filename)=>{
   const cols=colIds.map(id=>EXPORT_COLUMNS.find(c=>c.id===id)).filter(Boolean);

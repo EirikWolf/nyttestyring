@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useTheme } from "../ThemeContext";
-import { TRACKS, STATUSES, PRIORITIES, FIBONACCI, SCORING_CRITERIA, SCORE_EXAMPLES, calcWeightedScore, makeComposite, stMap, TIP, STATUS_TRANSITIONS, validTransition, BENEFIT_UNITS, BENEFIT_CATEGORIES, calcRealizationPct, BENEFIT_TYPES, BENEFIT_CLASSIFICATIONS, PIR_LESSON_CATEGORIES, SP, td, buildPirReport } from "../constants";
+import { TRACKS, STATUSES, PRIORITIES, FIBONACCI, SCORING_CRITERIA, SCORE_EXAMPLES, calcWeightedScore, makeComposite, stMap, TIP, STATUS_TRANSITIONS, validTransition, BENEFIT_UNITS, BENEFIT_CATEGORIES, calcRealizationPct, BENEFIT_TYPES, BENEFIT_CLASSIFICATIONS, PIR_LESSON_CATEGORIES, SP, td, buildPirReport, ENTERPRISES, SOLUTION_CATEGORIES } from "../constants";
 import { Badge, Card, Btn, SH, TF, SF, Sl, GoalPicker, Tip, KriterieScoring } from "../atoms";
 import AttachArea from "./AttachArea";
 import CommentsPanel from "./CommentsPanel";
@@ -39,9 +39,66 @@ const ReviewModal=({task,onClose,config,goals,role,updateTask,addComment,notify,
   return <div role="dialog" aria-modal="true" aria-label={`Vurdering: ${task.title}`} onKeyDown={e=>{if(e.key==="Escape")handleClose();}} style={{position:"fixed",inset:0,zIndex:100,display:"flex",alignItems:"flex-start",justifyContent:"center",background:"rgba(0,0,0,.45)",padding:"3vh 10px",overflow:"auto"}} onClick={handleClose}><div className="hemit-modal-inner" onClick={e=>e.stopPropagation()} style={{background:C.surface,borderRadius:14,maxWidth:880,width:"100%",minHeight:600,maxHeight:"94vh",overflow:"auto",padding:22,color:C.text}}>
     {/* Header */}
     <div style={{display:"flex",justifyContent:"space-between",marginBottom:8}}><div><h2 style={{fontSize:17,fontWeight:700,color:C.primary,margin:0}}>{task.id}: {task.title}</h2><p style={{fontSize:11,color:C.textMuted,margin:"2px 0"}}>{task.submitterName} · {task.processOwner&&`${task.processOwner} · `}{task.date}</p></div><Btn variant="ghost" onClick={handleClose} style={{color:C.textSec}}>✕</Btn></div>
-    <Card style={{marginBottom:10,borderLeft:`4px solid ${C.accent}`,background:C.surfaceAlt,padding:12}}><p style={{fontSize:12,color:C.textSec,margin:0}}>{task.desc||"—"}</p><div style={{display:"flex",gap:4,flexWrap:"wrap",marginTop:4}}>{task.eqsRef&&<Badge color="#0891B2" bg="#E0F7FA" style={{fontSize:9}}>📋 {task.eqsRef}</Badge>}{task.personalData==="yes"&&<Badge color={C.danger} bg={C.dangerBg} style={{fontSize:9}}>🔒 DPIA – <a href={config.dpiaLink} target="_blank" rel="noopener" style={{color:C.danger}}>Mal</a></Badge>}{(task.goals||[]).map(gid=>{const g=goals.find(x=>x.id===gid);return g?<Badge key={gid} color={C.primary} bg={C.primary+"0C"} style={{fontSize:9}}>🎯 {g.title}</Badge>:null;})}{task.benefitOwner&&<Badge color={C.accent} bg={C.accent+"0C"} style={{fontSize:9}}>👤 Nytteeier: {task.benefitOwner}</Badge>}</div></Card>
-    {/* C.7: Forretningsgrunnlag visning */}
-    {task.businessCase&&Object.values(task.businessCase).some(v=>v)&&<details style={{marginBottom:10}}><summary style={{fontSize:11,fontWeight:700,color:C.accent,cursor:"pointer"}}>📋 Forretningsgrunnlag</summary><Card style={{marginTop:4,background:C.surfaceAlt,padding:12}}>{[["Problemstilling","problemStatement"],["Nåværende situasjon","currentSituation"],["Foreslått løsning","proposedSolution"],["Alternativer","alternatives"],["Estimert kostnad","costs"],["Forventet nytte","benefits"],["Risikoer","risks"],["Anbefaling","recommendation"]].filter(([,k])=>task.businessCase[k]).map(([label,key])=><div key={key} style={{marginBottom:6}}><div style={{fontSize:9,fontWeight:600,color:C.textMuted,textTransform:"uppercase"}}>{label}</div><div style={{fontSize:11,color:C.textSec}}>{task.businessCase[key]}</div></div>)}</Card></details>}
+    <Card style={{marginBottom:10,borderLeft:`4px solid ${C.accent}`,background:C.surfaceAlt,padding:12}}><p style={{fontSize:12,color:C.textSec,margin:0}}>{task.desc||"—"}</p>
+      <div style={{display:"flex",gap:4,flexWrap:"wrap",marginTop:4}}>
+        {task.enterprise&&<Badge color={C.primary} bg={C.primary+"0C"} style={{fontSize:9}}>🏥 {ENTERPRISES.find(e=>e.id===task.enterprise)?.label||task.enterprise}</Badge>}
+        {task.solutionCategory&&task.solutionCategory!=="unknown"&&<Badge color={C.accent} bg={C.accent+"0C"} style={{fontSize:9}}>🔧 {SOLUTION_CATEGORIES.find(c=>c.id===task.solutionCategory)?.label||task.solutionCategory}</Badge>}
+        {task.eqsRef&&<Badge color="#0891B2" bg="#E0F7FA" style={{fontSize:9}}>📋 {task.eqsRef}</Badge>}
+        {task.serviceNowRef&&<Badge color="#7C3AED" bg="#EDE9FE" style={{fontSize:9}}>🎫 {task.serviceNowRef}</Badge>}
+        {task.pilotUnit&&<Badge color={C.warning} bg={C.warningBg} style={{fontSize:9}}>🧪 Pilot: {task.pilotUnit}</Badge>}
+        {(task.goals||[]).map(gid=>{const g=goals.find(x=>x.id===gid);return g?<Badge key={gid} color={C.primary} bg={C.primary+"0C"} style={{fontSize:9}}>🎯 {g.title}</Badge>:null;})}
+        {task.benefitOwner&&<Badge color={C.accent} bg={C.accent+"0C"} style={{fontSize:9}}>👤 Nytteeier: {task.benefitOwner}</Badge>}
+        {task.personalData==="yes"&&<Badge color={C.danger} bg={C.dangerBg} style={{fontSize:9}}>🔒 DPIA</Badge>}
+        {task.personalData==="unknown"&&<Badge color={C.warning} bg={C.warningBg} style={{fontSize:9}}>❓ Persondata?</Badge>}
+      </div>
+    </Card>
+
+    {/* Innmeldingsdetaljer — alle felt fra skjemaet */}
+    <details style={{marginBottom:10}}><summary style={{fontSize:11,fontWeight:700,color:C.accent,cursor:"pointer",padding:"4px 0"}}>📋 Innmeldingsdetaljer</summary>
+      <Card style={{marginTop:4,background:C.surfaceAlt,padding:12}}>
+        {/* Personopplysninger */}
+        {task.personalData&&<div style={{marginBottom:10}}>
+          <div style={{fontSize:10,fontWeight:700,color:C.primary,marginBottom:4,textTransform:"uppercase"}}>Personopplysninger</div>
+          <div style={{fontSize:11,color:C.textSec}}><span style={{fontWeight:600,color:C.textMuted}}>Behandles personopplysninger:</span> {task.personalData==="yes"?"Ja":task.personalData==="no"?"Nei":"Vet ikke"}</div>
+          {task.personalData==="yes"&&<div style={{marginTop:4,padding:"4px 8px",background:C.dangerBg,borderRadius:6,fontSize:10,color:C.danger}}>🔒 DPIA påkrevd{config?.dpiaLink&&<> – <a href={config.dpiaLink} target="_blank" rel="noopener" style={{color:C.danger}}>Mal</a></>}</div>}
+        </div>}
+        {/* Nå-situasjon */}
+        {(task.manualTask||task.taskPerformer||task.frequency||task.volumePerTime||task.annualTimeSaving||task.involvedSystems)&&<div style={{marginBottom:10}}>
+          <div style={{fontSize:10,fontWeight:700,color:C.primary,marginBottom:4,textTransform:"uppercase"}}>Nå-situasjon</div>
+          <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:4,fontSize:11,color:C.textSec}}>
+            {task.manualTask&&<div><span style={{fontWeight:600,color:C.textMuted}}>Manuell oppgave:</span> {task.manualTask==="yes"?"Ja":"Nei"}</div>}
+            {task.taskPerformer&&<div><span style={{fontWeight:600,color:C.textMuted}}>Utfører:</span> {task.taskPerformer}</div>}
+            {task.frequency&&<div><span style={{fontWeight:600,color:C.textMuted}}>Frekvens:</span> {task.frequency}</div>}
+            {task.volumePerTime&&<div><span style={{fontWeight:600,color:C.textMuted}}>Volum:</span> {task.volumePerTime}</div>}
+            {task.annualTimeSaving&&<div><span style={{fontWeight:600,color:C.textMuted}}>Forventet tidsbesparelse:</span> {task.annualTimeSaving} t/år</div>}
+            {task.involvedSystems&&<div style={{gridColumn:"1/-1"}}><span style={{fontWeight:600,color:C.textMuted}}>Involerte systemer:</span> {task.involvedSystems}</div>}
+          </div>
+        </div>}
+        {/* Behov og bakgrunn */}
+        {(task.needSummary||task.background)&&<div style={{marginBottom:10}}>
+          <div style={{fontSize:10,fontWeight:700,color:C.primary,marginBottom:4,textTransform:"uppercase"}}>Behov og bakgrunn</div>
+          {task.needSummary&&<div style={{fontSize:11,color:C.textSec,marginBottom:4}}><span style={{fontWeight:600,color:C.textMuted}}>Behov:</span> {task.needSummary}</div>}
+          {task.background&&<div style={{fontSize:11,color:C.textSec}}><span style={{fontWeight:600,color:C.textMuted}}>Bakgrunn:</span> {task.background}</div>}
+        </div>}
+        {/* Gevinster */}
+        {(task.qualitativeBenefits||task.quantitativeBenefits)&&<div style={{marginBottom:10}}>
+          <div style={{fontSize:10,fontWeight:700,color:C.primary,marginBottom:4,textTransform:"uppercase"}}>Gevinster (innmeldt)</div>
+          {task.qualitativeBenefits&&<div style={{fontSize:11,color:C.textSec,marginBottom:4}}><span style={{fontWeight:600,color:C.textMuted}}>Kvalitative:</span> {task.qualitativeBenefits}</div>}
+          {task.quantitativeBenefits&&<div style={{fontSize:11,color:C.textSec}}><span style={{fontWeight:600,color:C.textMuted}}>Kvantitative:</span> {task.quantitativeBenefits}</div>}
+        </div>}
+        {/* Alternativer og annet */}
+        {(task.alternativeSolutions||task.otherInfo)&&<div>
+          <div style={{fontSize:10,fontWeight:700,color:C.primary,marginBottom:4,textTransform:"uppercase"}}>Tilleggsinformasjon</div>
+          {task.alternativeSolutions&&<div style={{fontSize:11,color:C.textSec,marginBottom:4}}><span style={{fontWeight:600,color:C.textMuted}}>Alternative løsninger:</span> {task.alternativeSolutions}</div>}
+          {task.otherInfo&&<div style={{fontSize:11,color:C.textSec}}><span style={{fontWeight:600,color:C.textMuted}}>Annet:</span> {task.otherInfo}</div>}
+        </div>}
+        {/* Scoring-begrunnelser */}
+        {SCORING_CRITERIA.some(c=>task[c.key+"Reason"])&&<div style={{marginTop:10}}>
+          <div style={{fontSize:10,fontWeight:700,color:C.primary,marginBottom:4,textTransform:"uppercase"}}>Scoring-begrunnelser (innmeldt)</div>
+          {SCORING_CRITERIA.filter(c=>task[c.key+"Reason"]).map(c=><div key={c.key} style={{fontSize:11,color:C.textSec,marginBottom:3}}><span style={{fontWeight:600,color:C.textMuted}}>{c.label} ({task[c.key]||0}/10):</span> {task[c.key+"Reason"]}</div>)}
+        </div>}
+      </Card>
+    </details>
 
     {/* Tab bar (B1) */}
     <div style={{display:"flex",gap:1,background:C.surfaceAlt,borderRadius:8,padding:3,marginBottom:14}}>{TABS.filter(t=>t.id!=="subtasks"||!task.parentId).map(t=><button key={t.id} onClick={()=>setActiveTab(t.id)} style={{flex:1,padding:"6px 8px",borderRadius:6,border:"none",cursor:"pointer",fontSize:10,fontWeight:600,background:activeTab===t.id?C.surface:"transparent",color:activeTab===t.id?C.primary:C.textMuted,boxShadow:activeTab===t.id?"0 1px 3px rgba(0,0,0,.08)":"none"}}>{t.icon} {t.label}</button>)}</div>
@@ -94,9 +151,8 @@ const ReviewModal=({task,onClose,config,goals,role,updateTask,addComment,notify,
         <SF label="Nyttekategori" id="r-bcat" value={f.benefitCategory||""} onChange={e=>sF(p=>({...p,benefitCategory:e.target.value}))}><option value="">— Velg —</option>{BENEFIT_CATEGORIES.map(c=><option key={c.id} value={c.id}>{c.label}</option>)}</SF>
         <SF label="Måleenhet" id="r-bunit" value={f.benefitUnit||""} onChange={e=>sF(p=>({...p,benefitUnit:e.target.value}))}><option value="">— Velg —</option>{BENEFIT_UNITS.map(u=><option key={u.id} value={u.id}>{u.label}</option>)}</SF>
       </div>
-      {/* C.1: Nyttetype + klassifisering */}
-      <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8,marginBottom:8}}>
-        <SF label="Nyttetype" id="r-btype" value={f.benefitType||""} onChange={e=>sF(p=>({...p,benefitType:e.target.value}))}><option value="">— Velg —</option>{BENEFIT_TYPES.map(bt=><option key={bt.id} value={bt.id}>{bt.label}</option>)}</SF>
+      {/* C.1: Klassifisering */}
+      <div style={{marginBottom:8}}>
         <div><label style={{fontSize:11,fontWeight:600,color:C.textSec,display:"block",marginBottom:3}}>Klassifisering</label><div style={{display:"flex",gap:SP.md}}>{BENEFIT_CLASSIFICATIONS.map(bc=><label key={bc.id} style={{display:"flex",alignItems:"center",gap:4,fontSize:12,cursor:"pointer",color:f.benefitClassification===bc.id?C.primary:C.textMuted,fontWeight:f.benefitClassification===bc.id?600:400}}><input type="radio" name="benefitClassification" value={bc.id} checked={f.benefitClassification===bc.id} onChange={e=>sF(p=>({...p,benefitClassification:e.target.value}))}/>{bc.label}</label>)}</div></div>
       </div>
       <TF label="Metrikk / KPI" id="r-metric" value={f.benefitMetric||""} onChange={e=>sF(p=>({...p,benefitMetric:e.target.value}))} placeholder="f.eks. Behandlingstid per faktura"/>

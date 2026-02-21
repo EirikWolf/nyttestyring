@@ -436,10 +436,11 @@ describe("BENEFIT_TYPES (C.1)", () => {
     });
   });
   test("inneholder forventede typer", () => {
+    // BENEFIT_TYPES er nå alias for BENEFIT_CATEGORIES
     const ids = BENEFIT_TYPES.map(t => t.id);
-    expect(ids).toContain("kostnadsreduksjon");
-    expect(ids).toContain("tidsbesparing");
-    expect(ids).toContain("kvalitetsforbedring");
+    expect(ids).toContain("cost");
+    expect(ids).toContain("time");
+    expect(ids).toContain("quality");
   });
 });
 
