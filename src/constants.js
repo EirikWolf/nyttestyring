@@ -416,10 +416,10 @@ export const exportCsvAdvanced=(tasks,colIds,compositeScore,filename)=>{
 };
 
 // ══ D.5: Print-rapport (PDF via iframe) ══
-export const exportPrintReport=(title,htmlContent)=>{
+export const exportPrintReport=(title,htmlContent,appName="Nyttestyring")=>{
   const iframe=document.createElement("iframe");iframe.style.display="none";document.body.appendChild(iframe);
   const doc=iframe.contentDocument;
-  doc.write(`<!DOCTYPE html><html><head><meta charset="utf-8"><title>${title}</title><style>body{font-family:system-ui,sans-serif;padding:24px;color:#1A1A2E}h1{color:#003087;font-size:18px;border-bottom:2px solid #6CACE4;padding-bottom:6px}table{width:100%;border-collapse:collapse;font-size:11px;margin-top:12px}th{background:#F5F7FA;padding:6px;text-align:left;font-size:9px;font-weight:700;text-transform:uppercase;border-bottom:2px solid #003087}td{padding:5px 6px;border-bottom:1px solid #D0D9E4}.meta{font-size:10px;color:#4A5568;margin-top:4px}</style></head><body><h1>Hemit Nyttestyring — ${title}</h1><p class="meta">Generert: ${new Date().toLocaleDateString("nb-NO")}</p>${htmlContent}</body></html>`);
+  doc.write(`<!DOCTYPE html><html><head><meta charset="utf-8"><title>${title}</title><style>body{font-family:system-ui,sans-serif;padding:24px;color:#1A1A2E}h1{color:#003087;font-size:18px;border-bottom:2px solid #6CACE4;padding-bottom:6px}table{width:100%;border-collapse:collapse;font-size:11px;margin-top:12px}th{background:#F5F7FA;padding:6px;text-align:left;font-size:9px;font-weight:700;text-transform:uppercase;border-bottom:2px solid #003087}td{padding:5px 6px;border-bottom:1px solid #D0D9E4}.meta{font-size:10px;color:#4A5568;margin-top:4px}</style></head><body><h1>${appName} — ${title}</h1><p class="meta">Generert: ${new Date().toLocaleDateString("nb-NO")}</p>${htmlContent}</body></html>`);
   doc.close();setTimeout(()=>{iframe.contentWindow.print();setTimeout(()=>document.body.removeChild(iframe),1000);},300);
 };
 

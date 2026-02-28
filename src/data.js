@@ -257,7 +257,7 @@ export const INIT_TASKS=[
     comments:[],history:[{who:"System",what:"Opprettet",time:"2026-02-21 10:00"}],attachments:[]},
 ];
 
-export const INIT_CONFIG={defaultSprintWeeks:2,notifyEmails:["utviklingsforum@hemit.no","leder@hemit.no"],emailNotifications:true,emailOnStatusChange:true,emailOnReview:true,notifyProcessOwner:true,scoringWeights:{wsjf:60,trackSpecific:40},dpiaLink:"https://eqs.hemit.no/doc/DPIA-mal-2024",dpiaEqsRef:"EQS-2024-0200 DPIA-prosedyre",
+export const INIT_CONFIG={companyName:"Hemit HF",appTitle:"Hemit Nyttestyring",defaultSprintWeeks:2,notifyEmails:["utviklingsforum@hemit.no","leder@hemit.no"],emailNotifications:true,emailOnStatusChange:true,emailOnReview:true,notifyProcessOwner:true,scoringWeights:{wsjf:60,trackSpecific:40},dpiaLink:"https://eqs.hemit.no/doc/DPIA-mal-2024",dpiaEqsRef:"EQS-2024-0200 DPIA-prosedyre",
   auth:{enabled:false,provider:"azure-ad",tenantId:"",clientId:"",allowedDomains:["hemit.no","helse-midt.no","helseplattformen.no"],requireMfa:false,sessionTimeout:480,
     roleMappings:[
       {id:"rm1",groupId:"",groupName:"IT Utviklingsforum",role:"forum"},
